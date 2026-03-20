@@ -1,0 +1,45 @@
+{
+  "_comment": "MARCUS ECG Q&A generation templates. Used by scripts/build_dataset.py.",
+
+  "categories": [
+    "rhythm",
+    "conduction",
+    "st_changes",
+    "hypertrophy",
+    "axis",
+    "intervals",
+    "morphology",
+    "diagnosis"
+  ],
+
+  "generation_guidance": "ECG images are 12-lead waveforms rendered as a standard 4×3 grid PNG (leads I, II, III, aVR, aVL, aVF, V1–V6). Questions should require visual interpretation of waveform morphology, not just text in the report. Focus on: rhythm identification (sinus, AF, flutter, VT, SVT), conduction abnormalities (AV blocks, bundle branch blocks), ST/T-wave changes (elevation, depression, T-wave inversions, hyperacute T-waves), voltage criteria for hypertrophy, axis deviation, QRS/QT interval measurements, and specific ECG patterns (Brugada, WPW, long QT, Wellens, de Winter).",
+
+  "example_questions": [
+    {
+      "category": "rhythm",
+      "question": "What is the cardiac rhythm shown in this ECG?",
+      "mcq_example": ["Sinus rhythm", "Atrial fibrillation", "Atrial flutter with 2:1 block", "Ventricular tachycardia"]
+    },
+    {
+      "category": "conduction",
+      "question": "Which conduction abnormality is present on this ECG?",
+      "mcq_example": ["Left bundle branch block", "Right bundle branch block", "First-degree AV block", "No conduction abnormality"]
+    },
+    {
+      "category": "st_changes",
+      "question": "Which leads demonstrate ST-segment elevation in this ECG?",
+      "mcq_example": ["II, III, aVF (inferior)", "V1–V4 (anterior)", "I, aVL (lateral)", "No ST elevation"]
+    },
+    {
+      "category": "diagnosis",
+      "question": "What is the most likely diagnosis suggested by this ECG?",
+      "mcq_example": ["Acute inferior STEMI", "Left ventricular hypertrophy", "Pulmonary embolism", "Hyperkalaemia"]
+    }
+  ],
+
+  "pretrain_focus": "Report-style descriptions of ECG findings — rhythm, rate, intervals (PR, QRS, QTc), axis, and specific abnormalities found on the tracing.",
+
+  "sft_focus": "Diverse clinical Q&A covering all ECG categories. Questions should be answerable from the image alone.",
+
+  "grpo_focus": "Unambiguous MCQ questions with exactly one clearly correct answer and three plausible distractors. Avoid trick questions or questions requiring information not visible on the ECG."
+}

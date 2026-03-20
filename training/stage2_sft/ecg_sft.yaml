@@ -1,0 +1,59 @@
+### MARCUS — Stage 2: ECG Supervised Fine-Tuning
+### Jointly fine-tunes the vision encoder and language model on ECG visual Q&A pairs.
+### Resume from Stage 1 checkpoint (ecg_pretrain).
+### See: O'Sullivan et al., 2026 — MARCUS preprint.
+
+### ── Model ──────────────────────────────────────────────────────────────────
+model_name_or_path: Qwen/Qwen2.5-VL-3B-Instruct
+
+# Stage 2: unfreeze everything for joint fine-tuning
+freeze_vision_tower: false
+freeze_language_model: false
+visual_inputs: true
+
+# Resume from Stage 1 checkpoint
+resume_from_checkpoint: saves/Qwen2.5-VL-3B-Instruct/full/ecg_pretrain
+
+### ── Data ───────────────────────────────────────────────────────────────────
+dataset: ecg_mcq_train,ecg_vqa_train
+dataset_dir: data/
+template: qwen2_vl
+cutoff_len: 2048
+val_size: 0.01                # 1% validation split
+
+### ── Training ───────────────────────────────────────────────────────────────
+stage: sft
+do_train: true
+finetuning_type: full         # Full parameter fine-tuning (no PEFT/LoRA)
+
+# Lower learning rate than Stage 1 to avoid catastrophic forgetting
+learning_rate: 1.0e-5
+num_train_epochs: 5
+per_device_train_batch_size: 4
+gradient_accumulation_steps: 8   # Effective batch size = 4 * 8 * n_gpus = 32 per GPU
+
+lr_scheduler_type: cosine
+warmup_ratio: 0.05
+weight_decay: 0.01
+fp16: false
+bf16: true                    # BF16 on H100 for numerical stability
+tf32: true                    # Enable TF32 on Ampere+ GPUs for speed
+
+# Gradient clipping
+max_grad_norm: 1.0
+
+### ── Evaluation ─────────────────────────────────────────────────────────────
+eval_strategy: steps
+eval_steps: 500
+per_device_eval_batch_size: 4
+predict_with_generate: true
+
+### ── Output ─────────────────────────────────────────────────────────────────
+output_dir: saves/Qwen2.5-VL-3B-Instruct/full/ecg_sft
+logging_steps: 20
+save_steps: 500
+save_total_limit: 3           # Keep only the last 3 checkpoints
+
+### ── Hardware (DGX H100 — 8 GPUs) ──────────────────────────────────────────
+ddp_find_unused_parameters: false
+# Launch with: torchrun --nproc_per_node=8 train.py

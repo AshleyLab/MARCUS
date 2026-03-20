@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{DOCUMENT_TITLE}}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="header">
+    <h1>{{PAGE_HEADING}}</h1>
+    <p class="subtitle">{{TAGLINE}}</p>
+  </header>
+
+  <main class="main">
+    <section class="upload-section" id="uploadSection">
+      <div class="mode-row" id="modeRow">
+        <label class="mode-label" for="inputMode">Input</label>
+        <select id="inputMode" class="mode-select" aria-label="Input type">
+          <option value="video">Video (MP4 / MKV / AVI / MOV)</option>
+          <option value="cmr">CMR study (.tgz)</option>
+          <option value="echo">Echo study (.tgz)</option>
+          <option value="ecg">ECG (.npy)</option>
+        </select>
+      </div>
+      <div class="dropzone" id="dropzone" aria-label="Upload file">
+        <input type="file" id="fileInput" accept=".mp4,.mkv,.avi,.mov" hidden>
+        <p class="dropzone-text" id="dropzoneText">Drop video here or click to upload</p>
+        <p class="dropzone-hint" id="dropzoneHint">MP4, MKV, AVI, MOV (max 500MB)</p>
+      </div>
+      <div class="video-preview" id="videoPreview" hidden>
+        <video id="previewVideo" controls muted loop playsinline hidden></video>
+        <img id="previewImage" alt="ECG preview" class="preview-image" hidden>
+        <p class="video-filename" id="videoFilename"></p>
+      </div>
+    </section>
+
+    <section class="chat-section" id="chatSection">
+      <div class="chat-toolbar">
+        <button type="button" class="btn btn-secondary" id="newChatBtn">New chat</button>
+      </div>
+      <div class="chat-log" id="chatLog"></div>
+      <div class="chat-input-wrap">
+        <textarea id="chatInput" placeholder="Ask a question..." rows="2" disabled></textarea>
+        <button type="button" class="btn btn-primary" id="sendBtn" disabled>Send</button>
+      </div>
+      <p class="error-message" id="errorMessage" hidden></p>
+      <p class="loading-message" id="loadingMessage" hidden>Working...</p>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

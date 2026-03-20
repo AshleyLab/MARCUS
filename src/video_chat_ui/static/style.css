@@ -1,0 +1,141 @@
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: #0f0f12;
+  color: #e4e4e7;
+  min-height: 100vh;
+  line-height: 1.5;
+}
+
+.header {
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #27272a;
+  text-align: center;
+}
+
+.header h1 { margin: 0 0 0.25rem; font-size: 1.5rem; font-weight: 600; }
+.subtitle { margin: 0; font-size: 0.875rem; color: #a1a1aa; }
+
+.main { max-width: 48rem; margin: 0 auto; padding: 1.5rem; }
+.upload-section { margin-bottom: 1.5rem; }
+
+.mode-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.mode-label { font-size: 0.875rem; color: #a1a1aa; }
+.mode-select {
+  flex: 1;
+  max-width: 20rem;
+  padding: 0.45rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid #3f3f46;
+  background: #18181b;
+  color: #e4e4e7;
+  font-size: 0.875rem;
+}
+.preview-image {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  border-radius: 8px;
+  display: block;
+  background: #fff;
+}
+
+.dropzone {
+  border: 2px dashed #3f3f46;
+  border-radius: 12px;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.dropzone:hover, .dropzone.dragover { border-color: #71717a; background: #18181b; }
+.dropzone-text { margin: 0 0 0.25rem; font-size: 1rem; color: #e4e4e7; }
+.dropzone-hint { margin: 0; font-size: 0.8125rem; color: #71717a; }
+
+.video-preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: #18181b;
+  border-radius: 12px;
+  border: 1px solid #27272a;
+}
+
+.video-preview video { width: 100%; max-height: 240px; border-radius: 8px; display: block; }
+.video-filename { margin: 0.5rem 0 0; font-size: 0.875rem; color: #a1a1aa; }
+
+.chat-section { display: flex; flex-direction: column; gap: 0.75rem; }
+.chat-toolbar { display: flex; justify-content: flex-end; }
+
+.btn {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary { background: #3b82f6; color: #fff; }
+.btn-primary:hover:not(:disabled) { background: #2563eb; }
+.btn-secondary { background: #27272a; color: #e4e4e7; }
+.btn-secondary:hover:not(:disabled) { background: #3f3f46; }
+
+.chat-log {
+  min-height: 12rem;
+  max-height: 28rem;
+  overflow-y: auto;
+  padding: 1rem;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chat-log:empty::before {
+  content: "Conversation will appear here after you upload a video and send a message.";
+  color: #71717a;
+  font-size: 0.875rem;
+}
+
+.message { padding: 0.75rem 1rem; border-radius: 8px; max-width: 95%; }
+.message.user { align-self: flex-end; background: #27272a; }
+.message.assistant { align-self: flex-start; background: #1e3a5f; border: 1px solid #2563eb; }
+.message .role-label { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.05em; color: #a1a1aa; margin-bottom: 0.25rem; }
+.message .content { white-space: pre-wrap; word-break: break-word; font-size: 0.9375rem; }
+.message .video-tag { font-size: 0.75rem; color: #71717a; margin-top: 0.25rem; }
+
+.chat-input-wrap { display: flex; gap: 0.5rem; align-items: flex-end; }
+
+#chatInput {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  font-family: inherit;
+  color: #e4e4e7;
+  background: #18181b;
+  border: 1px solid #27272a;
+  border-radius: 8px;
+  resize: none;
+  min-height: 2.75rem;
+  max-height: 8rem;
+}
+
+#chatInput:focus { outline: none; border-color: #3b82f6; }
+#chatInput::placeholder { color: #71717a; }
+#sendBtn { flex-shrink: 0; }
+
+.error-message { margin: 0; padding: 0.5rem; font-size: 0.875rem; color: #f87171; background: #1c1917; border-radius: 8px; }
+.loading-message { margin: 0; font-size: 0.875rem; color: #a1a1aa; }
+[hidden] { display: none !important; }

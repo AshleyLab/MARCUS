@@ -1,0 +1,125 @@
+{
+  "_comment": "LLaMA-Factory dataset registry for MARCUS SFT training datasets.",
+  "_usage": "Copy this file to the LLaMA-Factory data directory, or set: export LLAMAFACTORY_DATA_DIR=data/",
+  "_note": "Dataset file names match those in LLaMA-Factory/data/ (cardiology_mcq_*.json, cardiology_vqa_*.json, ecg_diag_*.json).",
+
+  "ecg_mcq_train": {
+    "file_name": "ecg_diag_train.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "ecg_mcq_test": {
+    "file_name": "ecg_diag_test.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "ecg_vqa_train": {
+    "file_name": "cardiology_vqa_ecg_train.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "ecg_vqa_test": {
+    "file_name": "cardiology_vqa_ecg_test.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "echo_grid_mcq_train": {
+    "file_name": "cardiology_mcq_echo_train.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "echo_grid_mcq_test": {
+    "file_name": "cardiology_mcq_echo_test.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "echo_grid_vqa_train": {
+    "file_name": "cardiology_vqa_echo_train.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "echo_grid_vqa_test": {
+    "file_name": "cardiology_vqa_echo_test.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "cmr_grid_mcq_train": {
+    "file_name": "cardiology_mcq_cmr_train.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "cmr_grid_mcq_test": {
+    "file_name": "cardiology_mcq_cmr_test.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "cmr_grid_vqa_train": {
+    "file_name": "cardiology_vqa_cmr_train.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  },
+
+  "cmr_grid_vqa_test": {
+    "file_name": "cardiology_vqa_cmr_test.json",
+    "formatting": "sharegpt",
+    "columns": { "messages": "conversations" },
+    "tags": {
+      "role_tag": "role", "content_tag": "value",
+      "user_tag": "human", "assistant_tag": "gpt"
+    }
+  }
+}

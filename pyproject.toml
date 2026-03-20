@@ -1,0 +1,98 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "marcus-cardiac-ai"
+version = "1.0.0"
+description = "MARCUS: An agentic, multimodal vision-language model for cardiac diagnosis and management."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+  { name = "Jack W O'Sullivan", email = "jwosullivan@stanford.edu" },
+  { name = "Mohammad Asadi" },
+  { name = "Lennart Elbe" },
+  { name = "Euan A Ashley" },
+]
+keywords = ["cardiology", "medical-ai", "ecg", "echocardiography", "cmr", "multimodal", "vision-language"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Web Environment",
+  "Framework :: FastAPI",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Healthcare Industry",
+  "Topic :: Scientific/Engineering :: Medical Science Apps.",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "License :: OSI Approved :: MIT License",
+]
+dependencies = [
+  "fastapi>=0.104.0",
+  "uvicorn[standard]>=0.24.0",
+  "python-multipart>=0.0.6",
+  "httpx>=0.25.0",
+]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.1.0", "pytest>=7.0.0", "pytest-asyncio>=0.23.0"]
+preprocessing = [
+  "pydicom>=2.4.0",
+  "opencv-python-headless>=4.8.0",
+  "pandas>=2.0.0",
+  "numpy>=1.24.0",
+  "Pillow>=10.0.0",
+  "matplotlib>=3.7.0",
+  "tqdm>=4.65.0",
+]
+eval = ["openai>=1.40.0", "tqdm>=4.65.0", "scipy>=1.10.0", "numpy>=1.24.0"]
+training = [
+  "torch>=2.0.0",
+  "transformers>=4.40.0",
+  "datasets>=2.14.0",
+  "accelerate>=0.24.0",
+  "trl>=0.8.0",
+  "peft>=0.7.0",
+]
+all = [
+  "pydicom>=2.4.0",
+  "opencv-python-headless>=4.8.0",
+  "pandas>=2.0.0",
+  "numpy>=1.24.0",
+  "Pillow>=10.0.0",
+  "matplotlib>=3.7.0",
+  "tqdm>=4.65.0",
+  "openai>=1.40.0",
+  "scipy>=1.10.0",
+  "ruff>=0.1.0",
+  "pytest>=7.0.0",
+  "pytest-asyncio>=0.23.0",
+]
+
+[project.scripts]
+marcus-cmr = "video_chat_ui.cli:main_cmr"
+marcus-echo = "video_chat_ui.cli:main_echo"
+marcus-ecg = "video_chat_ui.cli:main_ecg"
+marcus-ui = "video_chat_ui.cli:main_ui_only"
+marcus-eval = "video_chat_ui.eval.cli:main"
+# Legacy aliases
+video-chat-cmr = "video_chat_ui.cli:main_cmr"
+video-chat-echo = "video_chat_ui.cli:main_echo"
+video-chat-ecg = "video_chat_ui.cli:main_ecg"
+video-chat-ui = "video_chat_ui.cli:main_ui_only"
+video-chat-eval = "video_chat_ui.eval.cli:main"
+
+[project.urls]
+Repository = "https://github.com/stanford-cardiac-ai/MARCUS"
+"Bug Tracker" = "https://github.com/stanford-cardiac-ai/MARCUS/issues"
+"HuggingFace" = "https://huggingface.co/stanford-cardiac-ai"
+"Paper" = "https://www.nature.com/articles/marcus-cardiac-ai"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+video_chat_ui = ["static/*"]

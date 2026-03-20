@@ -1,0 +1,46 @@
+{
+  "_comment": "MARCUS Echocardiogram Q&A generation templates. Used by scripts/build_dataset.py.",
+
+  "categories": [
+    "lv_function",
+    "rv_function",
+    "wall_motion",
+    "valvular",
+    "pericardial",
+    "cardiomyopathy",
+    "congenital",
+    "haemodynamics",
+    "diagnosis"
+  ],
+
+  "generation_guidance": "Echocardiogram clips are multi-view 2D studies extracted from DICOM files. Standard views available: parasternal long axis (PLAX), parasternal short axis (PSAX), apical 4-chamber (A4C), apical 2-chamber (A2C), and subcostal. Questions must reference specific visual findings visible in the clip. Focus on: LV systolic function (EF, wall motion abnormalities, regional RWMA), RV size/function (RV:LV ratio, TAPSE, systolic excursion), valvular disease (mitral stenosis/regurgitation, aortic stenosis/regurgitation, tricuspid, pulmonary), pericardial effusion (size, tamponade physiology, stranding), cardiomyopathies (dilated, hypertrophic, restrictive, ARVC, Takotsubo), and structural abnormalities.",
+
+  "example_questions": [
+    {
+      "category": "lv_function",
+      "question": "Based on this apical 4-chamber view, how would you grade the left ventricular systolic function?",
+      "mcq_example": ["Normal (EF ≥55%)", "Mildly reduced (EF 45–54%)", "Moderately reduced (EF 30–44%)", "Severely reduced (EF <30%)"]
+    },
+    {
+      "category": "wall_motion",
+      "question": "Which left ventricular wall segment demonstrates a regional wall motion abnormality in this clip?",
+      "mcq_example": ["Anterior wall (LAD territory)", "Inferior wall (RCA territory)", "Lateral wall (circumflex territory)", "No regional wall motion abnormality"]
+    },
+    {
+      "category": "valvular",
+      "question": "What valvular abnormality is demonstrated in this parasternal long-axis view?",
+      "mcq_example": ["Severe mitral regurgitation", "Severe aortic stenosis", "Mitral valve prolapse", "No significant valvular pathology"]
+    },
+    {
+      "category": "pericardial",
+      "question": "What is the most significant finding visible in the pericardial space?",
+      "mcq_example": ["Large circumferential pericardial effusion with tamponade physiology", "Small pericardial effusion", "Pericardial thickening without effusion", "Normal pericardium"]
+    }
+  ],
+
+  "pretrain_focus": "Structured echo report descriptions covering chamber dimensions, LV/RV function, valve assessments, and overall impression — mirroring a standard echo report structure.",
+
+  "sft_focus": "Diverse Q&A covering all echo views and pathologies. Questions should require visual interpretation of the clip.",
+
+  "grpo_focus": "Unambiguous MCQ questions about specific, visually verifiable findings. Distractors should be clinically plausible but clearly distinguishable from the correct answer on careful review."
+}

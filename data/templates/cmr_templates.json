@@ -1,0 +1,53 @@
+{
+  "_comment": "MARCUS Cardiac MRI Q&A generation templates. Used by scripts/build_dataset.py.",
+
+  "categories": [
+    "cine_function",
+    "lge_fibrosis",
+    "tissue_characterisation",
+    "perfusion",
+    "cardiomyopathy",
+    "congenital",
+    "pericardial",
+    "aorta",
+    "diagnosis"
+  ],
+
+  "generation_guidance": "CMR studies are multi-sequence DICOM series. Available sequences: cine (short-axis stack, 2-chamber, 4-chamber, LVOT), LGE (late gadolinium enhancement), T1 mapping (pre- and post-contrast), T2 mapping, perfusion (stress/rest). Questions must specify which sequence and view they relate to. Focus on: LV/RV function from cine (biventricular volumes, EF, wall motion), myocardial scar/fibrosis patterns on LGE (ischaemic subendocardial vs. non-ischaemic mid-wall/epicardial), T1/T2 elevation (oedema, inflammation, amyloid), perfusion defects (fixed vs. reversible), and cardiomyopathy phenotypes (HCM with SAM/LVOTO, DCM, ARVC with RV dysplasia, cardiac sarcoidosis, cardiac amyloidosis, myocarditis).",
+
+  "example_questions": [
+    {
+      "category": "lge_fibrosis",
+      "question": "Based on the LGE images, what pattern of myocardial enhancement is present?",
+      "mcq_example": [
+        "Subendocardial enhancement in an ischaemic distribution (LAD territory)",
+        "Mid-wall linear enhancement consistent with non-ischaemic cardiomyopathy",
+        "Patchy epicardial enhancement suggesting myocarditis",
+        "No late gadolinium enhancement"
+      ]
+    },
+    {
+      "category": "cine_function",
+      "question": "What is the left ventricular ejection fraction estimated from this short-axis cine stack?",
+      "mcq_example": ["Normal (≥55%)", "Mildly reduced (45–54%)", "Moderately reduced (30–44%)", "Severely reduced (<30%)"]
+    },
+    {
+      "category": "tissue_characterisation",
+      "question": "What does the elevated native T1 and T2 signal in this study most suggest?",
+      "mcq_example": ["Acute myocardial oedema/inflammation (myocarditis)", "Cardiac amyloidosis (low T1, high ECV)", "Chronic fibrous scar", "Normal myocardial tissue"]
+    },
+    {
+      "category": "cardiomyopathy",
+      "question": "Which cardiomyopathy diagnosis is best supported by the CMR findings in this study?",
+      "mcq_example": ["Hypertrophic cardiomyopathy (HCM) with asymmetric septal hypertrophy", "Dilated cardiomyopathy (DCM)", "Arrhythmogenic right ventricular cardiomyopathy (ARVC)", "Cardiac amyloidosis"]
+    }
+  ],
+
+  "sequence_selection_guidance": "The metadata-driven sequence selector in MARCUS uses DICOM sequence description tags to automatically select the most relevant sequences for a given question. Ensure question templates specify which sequence they relate to (cine, LGE, T1 map, T2 map, perfusion) so the selector can route correctly.",
+
+  "pretrain_focus": "Structured CMR report descriptions covering biventricular function, LGE findings, tissue characterisation results, and final impression — mirroring a standard CMR report.",
+
+  "sft_focus": "Diverse Q&A spanning all CMR sequences and cardiomyopathy diagnoses. Include questions that require integrating findings across multiple sequences.",
+
+  "grpo_focus": "Unambiguous MCQ questions tied to specific sequence findings. Correct answer should be visually verifiable from the specified CMR sequence. Distractors should differ in CMR appearance."
+}
