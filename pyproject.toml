@@ -91,7 +91,7 @@ video-chat-eval = "video_chat_ui.eval.cli:main"
 Repository = "https://github.com/stanford-cardiac-ai/MARCUS"
 "Bug Tracker" = "https://github.com/stanford-cardiac-ai/MARCUS/issues"
 "HuggingFace" = "https://huggingface.co/stanford-cardiac-ai"
-"Paper" = "https://www.nature.com/articles/marcus-cardiac-ai"
+"Paper" = "https://arxiv.org/abs/marcus-cardiac-ai"
 
 [tool.setuptools.packages.find]
 where = ["src"]

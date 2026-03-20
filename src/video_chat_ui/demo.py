@@ -85,7 +85,7 @@ FIGURES_DIR = Path(__file__).resolve().parent.parent.parent / "docs" / "figures"
 CUSTOM_CSS = """
 /* ══════════════════════════════════════════════════════════════════════
    MARCUS — Professional UI Stylesheet
-   Design: Clean academic aesthetic, Nature-journal inspired
+   Design: Clean academic aesthetic
    ══════════════════════════════════════════════════════════════════════ */
 
 /* ── Force light mode ────────────────────────────────────────────────── */
