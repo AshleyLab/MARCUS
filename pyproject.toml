@@ -57,6 +57,7 @@ training = [
   "trl>=0.8.0",
   "peft>=0.7.0",
 ]
+demo = ["gradio>=4.0"]
 all = [
   "pydicom>=2.4.0",
   "opencv-python-headless>=4.8.0",
@@ -78,6 +79,7 @@ marcus-echo = "video_chat_ui.cli:main_echo"
 marcus-ecg = "video_chat_ui.cli:main_ecg"
 marcus-ui = "video_chat_ui.cli:main_ui_only"
 marcus-eval = "video_chat_ui.eval.cli:main"
+marcus-demo = "video_chat_ui.demo:main"
 # Legacy aliases
 video-chat-cmr = "video_chat_ui.cli:main_cmr"
 video-chat-echo = "video_chat_ui.cli:main_echo"

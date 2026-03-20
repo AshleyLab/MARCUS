@@ -3,7 +3,7 @@ MARCUS Checkpoint Downloader.
 
 Downloads pre-trained MARCUS expert model checkpoints from HuggingFace Hub.
 The checkpoints correspond to the Stage 3 GRPO deployment models described
-in the MARCUS paper (O'Sullivan et al., Nature 2026).
+in the MARCUS paper (O'Sullivan et al., 2026).
 
 Usage::
 

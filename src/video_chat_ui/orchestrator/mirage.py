@@ -2,7 +2,7 @@
 MARCUS Mirage Reasoning Detection via Counterfactual Probing.
 
 Implements the three-step verification procedure described in the MARCUS paper
-(O'Sullivan et al., Nature 2026) to detect "mirage reasoning" — the phenomenon
+(O'Sullivan et al., 2026) to detect "mirage reasoning" — the phenomenon
 whereby vision-language models generate plausible clinical descriptions without
 actually referencing the provided image or video.
 
@@ -21,7 +21,7 @@ Detection protocol (per modality, per query):
 
 References:
     - O'Sullivan et al. "MARCUS: An agentic, multimodal vision-language model
-      for cardiac diagnosis and management." Nature (2026).
+      for cardiac diagnosis and management." (2026).
     - See companion paper on mirage reasoning for full methodology.
 """
 
@@ -176,12 +176,23 @@ class MirageProbe:
         """Build an OpenAI-compatible messages list, optionally with media."""
         content: list[dict] = [{"type": "text", "text": question}]
         if media_id is not None:
-            media_url = f"{base_url}/media/{media_id}"
+            media_ref = self._resolve_media_ref(media_id, media_kind, base_url)
             if media_kind == "video":
-                content.append({"type": "video_url", "video_url": {"url": media_url}})
+                content.append({"type": "video_url", "video_url": {"url": media_ref}})
             else:
-                content.append({"type": "image_url", "image_url": {"url": media_url}})
+                content.append({"type": "image_url", "image_url": {"url": media_ref}})
         return [{"role": "user", "content": content}]
+
+    @staticmethod
+    def _resolve_media_ref(media_id: str, media_kind: str, base_url: str) -> str:
+        """Videos need local paths (av needs seekable files); images use HTTP."""
+        if media_kind == "video":
+            from video_chat_ui import config
+            from pathlib import Path
+            local = Path(config.UPLOAD_DIR) / media_id
+            if local.is_file():
+                return str(local.resolve())
+        return f"{base_url}/media/{media_id}"
 
     async def _call_expert(
         self,
@@ -302,6 +313,7 @@ class MirageProbe:
         expert: str = "echo",
         media_kind: str = "video",
         messages_history: Optional[list[dict]] = None,
+        media_base_url: Optional[str] = None,
     ) -> ProbeResult:
         """
         Run the full counterfactual probing pipeline for one expert.
@@ -336,6 +348,7 @@ class MirageProbe:
         )
 
         rephrases = self.rephrase_question(question, modality=expert)
+        _media_url_base = media_base_url or expert_api_url
 
         async with httpx.AsyncClient() as client:
             # ----------------------------------------------------------
@@ -345,7 +358,7 @@ class MirageProbe:
                 self._call_expert(
                     client,
                     expert_api_url,
-                    self._build_messages(q, media_id, media_kind, expert_api_url),
+                    self._build_messages(q, media_id, media_kind, _media_url_base),
                 )
                 for q in rephrases
             ]
@@ -359,7 +372,7 @@ class MirageProbe:
             result.image_absent_response = await self._call_expert(
                 client,
                 expert_api_url,
-                self._build_messages(question, None, media_kind, expert_api_url),
+                self._build_messages(question, None, media_kind, _media_url_base),
             )
 
         # ------------------------------------------------------------------

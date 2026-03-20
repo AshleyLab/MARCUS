@@ -47,7 +47,7 @@ Shao et al., "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in
 Open Language Models." arXiv:2402.03300 (2024). [GRPO algorithm]
 
 O'Sullivan JW et al., "MARCUS: An agentic, multimodal vision-language model
-for cardiac diagnosis and management." Nature (2026).
+for cardiac diagnosis and management." (2026).
 """
 
 from __future__ import annotations

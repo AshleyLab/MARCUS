@@ -3,7 +3,7 @@
 B-Clean Dataset Filtering.
 
 Implements the B-Clean protocol from the MARCUS paper (O'Sullivan et al.,
-Nature 2026) to remove questions that can be answered correctly without
+2026) to remove questions that can be answered correctly without
 any visual input — a form of dataset contamination where text priors alone
 are sufficient for correct classification.
 

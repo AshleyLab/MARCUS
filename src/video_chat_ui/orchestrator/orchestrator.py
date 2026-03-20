@@ -2,7 +2,7 @@
 MARCUS Agentic Orchestrator.
 
 Implements the multimodal orchestration layer described in the MARCUS paper
-(O'Sullivan et al., Nature 2026). The orchestrator:
+(O'Sullivan et al., 2026). The orchestrator:
 
 1. **Decomposes** a clinical query into modality-specific sub-queries.
 2. **Routes** each sub-query to the appropriate domain-expert model (ECG,
@@ -25,7 +25,7 @@ Each expert exposes an OpenAI-compatible ``/v1/chat/completions`` endpoint.
 References
 ----------
 O'Sullivan JW et al., "MARCUS: An agentic, multimodal vision-language model
-for cardiac diagnosis and management." Nature (2026).
+for cardiac diagnosis and management." (2026).
 """
 
 from __future__ import annotations
@@ -65,6 +65,27 @@ EXPERT_ENDPOINTS: dict[str, dict[str, str]] = {
         "media_kind": "video",
     },
 }
+
+# ---------------------------------------------------------------------------
+# Media reference resolution
+# ---------------------------------------------------------------------------
+
+
+def _resolve_media_ref(media_id: str, media_kind: str, ui_url: str) -> str:
+    """Return the appropriate media reference for the LLaMA-Factory API.
+
+    Videos must be local file paths (the av decoder needs seekable files).
+    Images can be served via HTTP URL.
+    """
+    if media_kind == "video":
+        from video_chat_ui import config
+        from pathlib import Path
+
+        local = Path(config.UPLOAD_DIR) / media_id
+        if local.is_file():
+            return str(local.resolve())
+    return f"{ui_url}/media/{media_id}"
+
 
 # ---------------------------------------------------------------------------
 # Keyword heuristics for modality selection
@@ -341,6 +362,7 @@ class MARCUSOrchestrator:
                 expert_api_url=api_url,
                 expert=expert,
                 media_kind=media_kind,
+                media_base_url=ui_url,
             )
             # Use the first grounded response as the canonical answer
             response = (
@@ -352,11 +374,11 @@ class MARCUSOrchestrator:
         else:
             # Lightweight path: single API call, no probing
             content: list[dict] = [{"type": "text", "text": sub_question}]
-            media_url = f"{ui_url}/media/{media_id}"
+            media_ref = _resolve_media_ref(media_id, media_kind, ui_url)
             if media_kind == "video":
-                content.append({"type": "video_url", "video_url": {"url": media_url}})
+                content.append({"type": "video_url", "video_url": {"url": media_ref}})
             else:
-                content.append({"type": "image_url", "image_url": {"url": media_url}})
+                content.append({"type": "image_url", "image_url": {"url": media_ref}})
 
             payload = {
                 "model": self.model,
@@ -465,6 +487,7 @@ class MARCUSOrchestrator:
         question: str,
         media_ids: dict[str, str],
         messages_history: Optional[list[dict]] = None,
+        route_all: bool = False,
     ) -> OrchestratorResult:
         """
         Full multimodal inference pipeline.
@@ -498,7 +521,8 @@ class MARCUSOrchestrator:
             )
 
         # 1. Select relevant modalities
-        relevant = _select_relevant_modalities(question, available)
+        # When route_all is True (multimodal tab), query every provided expert
+        relevant = available if route_all else _select_relevant_modalities(question, available)
         logger.info(
             "Query: %r | Available: %s | Relevant: %s",
             question[:80],

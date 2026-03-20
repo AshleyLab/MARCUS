@@ -175,13 +175,19 @@ async def preprocess_endpoint(file: UploadFile = File(...), expert: str = Form(.
 async def chat(req: ChatRequest):
     if not req.messages:
         raise HTTPException(400, detail="messages required")
-    media_path = None
+    media_ref = None
     if req.video_id:
         p = get_path_for_id(req.video_id)
         if not p or not p.is_file():
             raise HTTPException(400, detail="Invalid or expired media id")
-        media_path = str(p)
-    api_messages = build_api_messages(media_path, req.messages, req.media_kind)
+        if req.media_kind == "video":
+            # Videos must be local paths (av library needs seekable files)
+            media_ref = str(p)
+        else:
+            # Images work via HTTP URL
+            ui_port = config.PORT
+            media_ref = f"http://127.0.0.1:{ui_port}/media/{req.video_id}"
+    api_messages = build_api_messages(media_ref, req.messages, req.media_kind)
     body = {
         "model": "gpt-3.5-turbo",
         "messages": api_messages,

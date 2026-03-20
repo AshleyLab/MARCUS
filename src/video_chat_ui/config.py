@@ -10,5 +10,5 @@ UPLOAD_DIR = os.environ.get("UPLOAD_DIR", str(_default_upload))
 
 MAX_UPLOAD_MB = int(os.environ.get("MAX_UPLOAD_MB", "500"))
 MAX_UPLOAD_BYTES = MAX_UPLOAD_MB * 1024 * 1024
-ALLOWED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov"}
+ALLOWED_EXTENSIONS = {".mp4", ".mkv", ".avi", ".mov", ".png", ".jpg", ".jpeg", ".npy", ".xml", ".tgz"}
 PORT = int(os.environ.get("PORT", "8765"))

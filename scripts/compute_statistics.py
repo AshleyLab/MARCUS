@@ -3,7 +3,7 @@
 MARCUS Statistical Analysis Script.
 
 Reproduces all statistical tests reported in the MARCUS paper
-(O'Sullivan et al., Nature 2026):
+(O'Sullivan et al., 2026):
 
   - McNemar's test (paired MCQ comparison)
   - Mann-Whitney U test (VQA Likert score comparison)
