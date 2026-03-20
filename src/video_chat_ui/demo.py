@@ -404,7 +404,15 @@ async def _upload_file(file_path: str, modality: str) -> tuple[str, str]:
 
 
 async def _chat_query(modality: str, media_id: str, media_kind: str, question: str) -> str:
-    """Send a chat query to the expert's FastAPI UI and collect the streamed response."""
+    """Send a chat query to the expert's FastAPI UI and collect the full response."""
+    full_text = ""
+    async for token in _stream_chat_query(modality, media_id, media_kind, question):
+        full_text += token
+    return full_text
+
+
+async def _stream_chat_query(modality: str, media_id: str, media_kind: str, question: str):
+    """Stream tokens from the expert's FastAPI UI via SSE. Yields each token as it arrives."""
     base = _ui_url(modality)
     payload = {
         "video_id": media_id,
@@ -412,31 +420,180 @@ async def _chat_query(modality: str, media_id: str, media_kind: str, question: s
         "messages": [{"role": "user", "content": question}],
     }
     async with httpx.AsyncClient(timeout=180) as c:
-        resp = await c.post(f"{base}/chat", json=payload)
-        resp.raise_for_status()
-        raw = resp.text
-    # Parse SSE data lines
-    answer_parts = []
-    for line in raw.split("\n"):
-        line = line.strip()
-        if line.startswith("data:"):
-            data_str = line[len("data:"):].strip()
-            if data_str == "[DONE]":
-                continue
-            try:
-                chunk = json.loads(data_str)
-                delta = chunk.get("choices", [{}])[0].get("delta", {})
-                if "content" in delta:
-                    answer_parts.append(delta["content"])
-            except (json.JSONDecodeError, IndexError, KeyError):
-                answer_parts.append(data_str)
-    return "".join(answer_parts) if answer_parts else raw
+        async with c.stream("POST", f"{base}/chat", json=payload) as resp:
+            resp.raise_for_status()
+            buf = ""
+            async for chunk in resp.aiter_text():
+                buf += chunk
+                while "\n" in buf:
+                    line, buf = buf.split("\n", 1)
+                    line = line.strip()
+                    if not line.startswith("data:"):
+                        continue
+                    data_str = line[len("data:"):].strip()
+                    if data_str == "[DONE]":
+                        return
+                    try:
+                        parsed = json.loads(data_str)
+                        delta = parsed.get("choices", [{}])[0].get("delta", {})
+                        if "content" in delta:
+                            yield delta["content"]
+                    except (json.JSONDecodeError, IndexError, KeyError):
+                        pass
 
 
 def _strip_think_tags(text: str) -> str:
     """Remove <think>...</think> reasoning blocks from model output."""
     import re
     return re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL).strip()
+
+
+# ---------------------------------------------------------------------------
+# Attention map visualization
+# ---------------------------------------------------------------------------
+
+
+async def _attention_query(modality: str, media_id: str, media_kind: str, question: str) -> dict:
+    """Query the attention endpoint to get per-token attention maps."""
+    base = _ui_url(modality)
+    payload = {
+        "video_id": media_id,
+        "media_kind": media_kind,
+        "messages": [{"role": "user", "content": question}],
+    }
+    async with httpx.AsyncClient(timeout=300) as c:
+        resp = await c.post(f"{base}/chat_attention", json=payload)
+        resp.raise_for_status()
+        return resp.json()
+
+
+def _load_base_image(path: str):
+    """Load the base image for attention overlay.  For videos, extracts the middle frame.
+
+    Returns a PIL Image or None.
+    """
+    from PIL import Image
+
+    if path.lower().endswith((".mp4", ".avi", ".mov", ".mkv")):
+        return _extract_middle_frame(path)
+    return Image.open(path).convert("RGB")
+
+
+def _create_attention_heatmap(
+    attention_weights: list[float],
+    grid_h: int,
+    grid_w: int,
+    base_image,
+    grid_t: int = 1,
+) -> "np.ndarray | None":
+    """Create a heatmap overlay on the base image from attention weights.
+
+    For videos (grid_t > 1), averages attention over the temporal dimension.
+    ``base_image`` should be a pre-loaded PIL Image (use ``_load_base_image``).
+    Returns numpy array (H, W, 3) or None on failure.
+    """
+    try:
+        import numpy as np
+        from PIL import Image as PILImage
+
+        if base_image is None:
+            return None
+
+        # Reshape attention to spatial grid (averaging over temporal dim for video)
+        n_spatial = grid_h * grid_w
+        n_total = n_spatial * grid_t
+        w_arr = np.array(attention_weights, dtype=np.float32)
+        if len(w_arr) < n_total:
+            w_arr = np.pad(w_arr, (0, n_total - len(w_arr)))
+        else:
+            w_arr = w_arr[:n_total]
+        if grid_t > 1:
+            attn_map = w_arr.reshape(grid_t, grid_h, grid_w).mean(axis=0)
+        else:
+            attn_map = w_arr[:n_spatial].reshape(grid_h, grid_w)
+
+        # Normalize to [0, 1] with contrast enhancement
+        vmin, vmax = attn_map.min(), attn_map.max()
+        if vmax > vmin:
+            attn_map = (attn_map - vmin) / (vmax - vmin)
+            # Power-law contrast: boost high-attention regions
+            attn_map = np.power(attn_map, 0.5)
+        else:
+            attn_map = np.zeros_like(attn_map)
+
+        w, h = base_image.size
+
+        # Upscale attention map to image size using bilinear interpolation
+        attn_uint8 = (attn_map * 255).astype(np.uint8)
+        attn_pil = PILImage.fromarray(attn_uint8, mode="L")
+        attn_resized = attn_pil.resize((w, h), PILImage.BILINEAR)
+        attn_np = np.array(attn_resized, dtype=np.float32) / 255.0
+
+        # Jet-like colormap: blue → cyan → green → yellow → red
+        heatmap_rgb = np.zeros((h, w, 3), dtype=np.float32)
+        # Red: ramp up from 0.5 to 1.0
+        heatmap_rgb[:, :, 0] = np.clip(1.5 * attn_np - 0.25, 0, 1)
+        # Green: peak at 0.5, taper at extremes
+        heatmap_rgb[:, :, 1] = np.clip(1.0 - 2.0 * np.abs(attn_np - 0.5), 0, 1)
+        # Blue: ramp down from 0.0 to 0.5
+        heatmap_rgb[:, :, 2] = np.clip(1.25 - 1.5 * attn_np, 0, 1)
+
+        heatmap_rgb = (heatmap_rgb * 255).astype(np.uint8)
+        heatmap_img = PILImage.fromarray(heatmap_rgb, mode="RGB")
+
+        # Blend: variable alpha — stronger where attention is high
+        base_np = np.array(base_image, dtype=np.float32)
+        heat_np = np.array(heatmap_img, dtype=np.float32)
+        # Alpha ranges from 0.15 (low attn) to 0.6 (high attn)
+        alpha_map = 0.15 + 0.45 * attn_np
+        alpha_3ch = np.stack([alpha_map] * 3, axis=-1)
+        blended_np = (1 - alpha_3ch) * base_np + alpha_3ch * heat_np
+        # Return as numpy array — Gradio gr.Image handles this directly
+        return blended_np.astype(np.uint8)
+
+    except Exception as exc:
+        logger.warning("Attention heatmap creation failed: %s", exc)
+        return None
+
+
+def _extract_middle_frame(video_path: str):
+    """Extract the middle frame from a video file."""
+    try:
+        import subprocess
+        import imageio_ffmpeg
+        from PIL import Image
+        import io
+
+        ffmpeg_bin = imageio_ffmpeg.get_ffmpeg_exe()
+
+        # Get video duration
+        probe = subprocess.run(
+            [ffmpeg_bin, "-i", video_path],
+            capture_output=True, timeout=10,
+        )
+        # Parse duration from stderr
+        import re
+        duration_match = re.search(r"Duration:\s*(\d+):(\d+):(\d+\.\d+)", probe.stderr.decode())
+        if duration_match:
+            h, m, s = duration_match.groups()
+            total_s = int(h) * 3600 + int(m) * 60 + float(s)
+            mid_s = total_s / 2
+        else:
+            mid_s = 1.0  # fallback
+
+        # Extract frame at middle timestamp
+        out_path = tempfile.mktemp(suffix=".png", dir="/tmp")
+        result = subprocess.run(
+            [ffmpeg_bin, "-ss", str(mid_s), "-i", video_path,
+             "-vframes", "1", "-y", out_path],
+            capture_output=True, timeout=30,
+        )
+        if result.returncode == 0 and Path(out_path).exists():
+            return Image.open(out_path).convert("RGB")
+        return None
+    except Exception as exc:
+        logger.warning("Middle frame extraction failed: %s", exc)
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -449,16 +606,19 @@ async def run_single_analysis(
     modality: str,
     question: str,
     enable_mirage: bool,
+    enable_attention: bool = False,
     template: str | None = None,
-) -> tuple[str, str, str]:
-    """Run single-modality analysis. Returns (answer, confidence_info, timing)."""
+):
+    """Run single-modality analysis. Yields (answer, confidence_info, timing, attn_map) with streaming."""
     if file_obj is None:
-        return "Please upload a file or select an example.", "", ""
+        yield "Please upload a file or select an example.", "", "", None
+        return
     # Fall back to template dropdown if textbox is empty
     if not question.strip() and template:
         question = template
     if not question.strip():
-        return "Please enter a clinical question.", "", ""
+        yield "Please enter a clinical question.", "", "", None
+        return
 
     modality = modality.lower()
     t0 = time.time()
@@ -469,44 +629,116 @@ async def run_single_analysis(
     try:
         alive = await _check_expert(modality)
         if not alive:
-            return f"The {EXPERTS[modality]['label']} expert is not available. Start the model server first.", "", ""
+            yield f"The {EXPERTS[modality]['label']} expert is not available. Start the model server first.", "", "", None
+            return
 
         media_id, media_kind = await _upload_file(file_path, modality)
-        answer = await _chat_query(modality, media_id, media_kind, question)
-        answer = _strip_think_tags(answer)
 
-        elapsed = time.time() - t0
-        timing = f'<span class="timing-pill">Completed in {elapsed:.1f}s</span>'
+        if enable_attention:
+            # --- Attention map mode: non-streaming with per-token attention ---
+            yield "Generating with attention extraction (slower)...", "", "", None
 
-        confidence_info = ""
-        if enable_mirage:
             try:
-                from video_chat_ui.orchestrator.mirage import MirageProbe
-                probe = MirageProbe(timeout=120.0)
-                result = await probe.probe_expert(
-                    question=question,
-                    media_id=media_id,
-                    expert_api_url=_api_url(modality),
-                    expert=modality,
-                    media_kind=media_kind,
-                    media_base_url=_ui_url(modality),
-                )
-                flag = "MIRAGE DETECTED" if result.mirage_flag else "No mirage detected"
-                confidence_info = (
-                    f"**Mirage probe:** {flag}\n\n"
-                    f"Consistency: {result.consistency_score:.3f} &middot; "
-                    f"Divergence: {result.divergence_score:.3f} &middot; "
-                    f"Confidence: {result.confidence_score:.3f}"
-                )
-                elapsed = time.time() - t0
-                timing = f'<span class="timing-pill">Analysis + mirage probe in {elapsed:.1f}s</span>'
-            except Exception as e:
-                confidence_info = f"Mirage probing failed: {e}"
+                attn_data = await _attention_query(modality, media_id, media_kind, question)
+            except Exception as exc:
+                yield f"Attention extraction failed: {exc}", "", "", None
+                return
 
-        return answer, confidence_info, timing
+            tokens = attn_data.get("tokens", [])
+            attn_maps = attn_data.get("attention_maps", [])
+            grid_h = attn_data.get("grid_h", 0)
+            grid_w = attn_data.get("grid_w", 0)
+            grid_t = attn_data.get("grid_t", 1)
+            full_response = attn_data.get("response", "")
+            full_answer = _strip_think_tags(full_response)
+
+            # Pre-load base image once (avoids repeated ffmpeg calls for video)
+            base_img = _load_base_image(file_path) if grid_h > 0 and grid_w > 0 else None
+
+            # Replay tokens with attention heatmaps
+            text_so_far = ""
+            last_heatmap = None
+            skip_think = False
+            for i, tok in enumerate(tokens):
+                text_so_far += tok
+                # Handle <think> tags
+                if "<think>" in text_so_far and "</think>" not in text_so_far:
+                    skip_think = True
+                if "</think>" in text_so_far:
+                    skip_think = False
+
+                display = _strip_think_tags(text_so_far)
+                if skip_think:
+                    display = display + " _(thinking...)_" if display else "_(thinking...)_"
+
+                # Generate heatmap for this token
+                if i < len(attn_maps) and base_img is not None:
+                    heatmap = _create_attention_heatmap(
+                        attn_maps[i], grid_h, grid_w, base_img, grid_t,
+                    )
+                    if heatmap is not None:
+                        last_heatmap = heatmap
+
+                yield display, "", "", last_heatmap
+                # Brief pause so users can see the attention shift per token
+                await asyncio.sleep(0.08)
+
+            elapsed = time.time() - t0
+            timing = f'<span class="timing-pill">Completed in {elapsed:.1f}s (with attention)</span>'
+            yield full_answer, "", timing, last_heatmap
+
+        else:
+            # --- Standard streaming mode ---
+            answer_parts = []
+            in_think = False
+            async for token in _stream_chat_query(modality, media_id, media_kind, question):
+                answer_parts.append(token)
+                raw_so_far = "".join(answer_parts)
+                display = _strip_think_tags(raw_so_far)
+                if "<think>" in raw_so_far:
+                    open_count = raw_so_far.count("<think>")
+                    close_count = raw_so_far.count("</think>")
+                    in_think = open_count > close_count
+                if in_think:
+                    yield display + " _(thinking...)_" if display else "_(thinking...)_", "", "", None
+                else:
+                    yield display, "", "", None
+
+            full_answer = _strip_think_tags("".join(answer_parts))
+
+            elapsed = time.time() - t0
+            timing = f'<span class="timing-pill">Completed in {elapsed:.1f}s</span>'
+
+            confidence_info = ""
+            if enable_mirage:
+                yield full_answer, "Running mirage probe...", timing, None
+                try:
+                    from video_chat_ui.orchestrator.mirage import MirageProbe
+                    probe = MirageProbe(timeout=120.0)
+                    result = await probe.probe_expert(
+                        question=question,
+                        media_id=media_id,
+                        expert_api_url=_api_url(modality),
+                        expert=modality,
+                        media_kind=media_kind,
+                        media_base_url=_ui_url(modality),
+                    )
+                    flag = "MIRAGE DETECTED" if result.mirage_flag else "No mirage detected"
+                    confidence_info = (
+                        f"**Mirage probe:** {flag}\n\n"
+                        f"Consistency: {result.consistency_score:.3f} &middot; "
+                        f"Divergence: {result.divergence_score:.3f} &middot; "
+                        f"Confidence: {result.confidence_score:.3f}"
+                    )
+                    elapsed = time.time() - t0
+                    timing = f'<span class="timing-pill">Analysis + mirage probe in {elapsed:.1f}s</span>'
+                except Exception as e:
+                    confidence_info = f"Mirage probing failed: {e}"
+
+            yield full_answer, confidence_info, timing, None
 
     except Exception as e:
-        return f"Error: {e}", "", ""
+        yield f"Error: {e}", "", "", None
 
 
 # ---------------------------------------------------------------------------
@@ -519,19 +751,27 @@ async def run_multimodal_analysis(
     echo_file: Any,
     cmr_file: Any,
     question: str,
+    enable_attention: bool = False,
     template: str | None = None,
-) -> tuple[str, str, str, str, str, str]:
-    """Run multimodal analysis. Returns (synth_answer, ecg_resp, echo_resp, cmr_resp, confidence_md, timing)."""
+):
+    """Run multimodal analysis with optional attention maps.
+
+    Returns (synth_answer, ecg_resp, echo_resp, cmr_resp, confidence_md, timing,
+             ecg_attn, echo_attn, cmr_attn).
+    """
+    empty = ("", "", "", "", "", "", None, None, None)
     # Fall back to template dropdown if textbox is empty
     if not question.strip() and template:
         question = template
     if not question.strip():
-        return "Please enter a clinical question.", "", "", "", "", ""
+        yield ("Please enter a clinical question.",) + ("",) * 5 + (None, None, None)
+        return
 
     files = {"ecg": ecg_file, "echo": echo_file, "cmr": cmr_file}
     provided = {m: f for m, f in files.items() if f is not None}
     if len(provided) < 2:
-        return "Please provide at least two modalities for multimodal analysis.", "", "", "", "", ""
+        yield ("Please provide at least two modalities for multimodal analysis.",) + ("",) * 5 + (None, None, None)
+        return
 
     t0 = time.time()
 
@@ -539,15 +779,22 @@ async def run_multimodal_analysis(
     for mod in provided:
         alive = await _check_expert(mod)
         if not alive:
-            return f"The {EXPERTS[mod]['label']} expert is not available.", "", "", "", "", ""
+            yield (f"The {EXPERTS[mod]['label']} expert is not available.",) + ("",) * 5 + (None, None, None)
+            return
 
     try:
-        # Upload all files
+        # Upload all files — keep file paths for heatmap base images
         media_ids: dict[str, str] = {}
+        media_kinds: dict[str, str] = {}
+        file_paths: dict[str, str] = {}
         for mod, f in provided.items():
             fp = f if isinstance(f, str) else f.name if hasattr(f, "name") else str(f)
-            mid, _ = await _upload_file(fp, mod)
+            mid, mk = await _upload_file(fp, mod)
             media_ids[mod] = mid
+            media_kinds[mod] = mk
+            file_paths[mod] = fp
+
+        yield ("Running orchestrator...", "", "", "", "", "", None, None, None)
 
         # Run orchestrator — route_all=True so every provided modality is queried
         from video_chat_ui.orchestrator.orchestrator import MARCUSOrchestrator
@@ -567,14 +814,55 @@ async def run_multimodal_analysis(
                 conf_lines.append(f"**{mod.upper()}**: {score:.3f}{flag}")
         confidence_md = " &middot; ".join(conf_lines) if conf_lines else ""
 
-        elapsed = time.time() - t0
-        timing = f'<span class="timing-pill">Multimodal synthesis in {elapsed:.1f}s</span>'
-
         synth_answer = _strip_think_tags(result.answer)
-        return synth_answer, ecg_resp, echo_resp, cmr_resp, confidence_md, timing
+
+        if not enable_attention:
+            elapsed = time.time() - t0
+            timing = f'<span class="timing-pill">Multimodal synthesis in {elapsed:.1f}s</span>'
+            yield (synth_answer, ecg_resp, echo_resp, cmr_resp, confidence_md, timing, None, None, None)
+            return
+
+        # --- Attention extraction for each modality (in parallel) ---
+        yield (synth_answer, ecg_resp, echo_resp, cmr_resp, confidence_md,
+               '<span class="timing-pill">Extracting attention maps...</span>', None, None, None)
+
+        async def _get_attn(mod: str) -> dict | None:
+            try:
+                return await _attention_query(mod, media_ids[mod], media_kinds[mod], question)
+            except Exception as exc:
+                logger.warning("Multimodal attention failed for %s: %s", mod, exc)
+                return None
+
+        attn_tasks = {mod: asyncio.create_task(_get_attn(mod)) for mod in provided}
+        attn_results: dict[str, dict | None] = {}
+        for mod, task in attn_tasks.items():
+            attn_results[mod] = await task
+
+        # Generate heatmaps
+        heatmaps: dict[str, Any] = {"ecg": None, "echo": None, "cmr": None}
+        for mod in provided:
+            data = attn_results.get(mod)
+            if not data:
+                continue
+            attn_maps = data.get("attention_maps", [])
+            grid_h = data.get("grid_h", 0)
+            grid_w = data.get("grid_w", 0)
+            grid_t = data.get("grid_t", 1)
+            if attn_maps and grid_h > 0 and grid_w > 0:
+                base_img = _load_base_image(file_paths[mod])
+                # Use last token's attention (final answer token)
+                last_attn = attn_maps[-1] if attn_maps else []
+                hm = _create_attention_heatmap(last_attn, grid_h, grid_w, base_img, grid_t)
+                if hm is not None:
+                    heatmaps[mod] = hm
+
+        elapsed = time.time() - t0
+        timing = f'<span class="timing-pill">Multimodal synthesis in {elapsed:.1f}s (with attention)</span>'
+        yield (synth_answer, ecg_resp, echo_resp, cmr_resp, confidence_md, timing,
+               heatmaps["ecg"], heatmaps["echo"], heatmaps["cmr"])
 
     except Exception as e:
-        return f"Error: {e}", "", "", "", "", ""
+        yield (f"Error: {e}",) + ("",) * 5 + (None, None, None)
 
 
 # ---------------------------------------------------------------------------
@@ -813,10 +1101,15 @@ def build_demo() -> gr.Blocks:
                             placeholder="Ask a clinical question about this study...",
                             lines=2,
                         )
-                        mirage_cb = gr.Checkbox(
-                            label="Enable mirage probing",
-                            value=False,
-                        )
+                        with gr.Row():
+                            mirage_cb = gr.Checkbox(
+                                label="Enable mirage probing",
+                                value=False,
+                            )
+                            attention_cb = gr.Checkbox(
+                                label="Show attention maps",
+                                value=False,
+                            )
                         submit_btn = gr.Button("Analyse", variant="primary")
 
                         gr.Markdown("### Response")
@@ -826,6 +1119,13 @@ def build_demo() -> gr.Blocks:
                         )
                         confidence_md = gr.Markdown("")
                         timing_md = gr.HTML("")
+
+                        gr.Markdown("### Attention Map")
+                        attn_image = gr.Image(
+                            label="Per-token attention over input",
+                            height=280,
+                            visible=True,
+                        )
 
                 # Wiring
                 modality_radio.change(
@@ -843,8 +1143,8 @@ def build_demo() -> gr.Blocks:
                 )
                 submit_btn.click(
                     run_single_analysis,
-                    [single_file, modality_radio, question_input, mirage_cb, template_dd],
-                    [answer_box, confidence_md, timing_md],
+                    [single_file, modality_radio, question_input, mirage_cb, attention_cb, template_dd],
+                    [answer_box, confidence_md, timing_md, attn_image],
                 )
 
             # ════════════════════════════════════════════════════════════
@@ -900,6 +1200,7 @@ def build_demo() -> gr.Blocks:
                     label="Clinical question", lines=2,
                     placeholder="Ask a question requiring multimodal reasoning...",
                 )
+                multi_attn_cb = gr.Checkbox(label="Show attention maps", value=False)
                 multi_submit = gr.Button("Run Multimodal Analysis", variant="primary")
 
                 gr.Markdown("### Synthesised Report")
@@ -919,6 +1220,12 @@ def build_demo() -> gr.Blocks:
                         cmr_resp_box = gr.Textbox(label="CMR Expert", lines=5, interactive=False,
                                                    elem_classes=["result-box"])
 
+                with gr.Accordion("Attention Maps", open=False) as multi_attn_accordion:
+                    with gr.Row():
+                        multi_ecg_attn = gr.Image(label="ECG Attention", interactive=False)
+                        multi_echo_attn = gr.Image(label="Echo Attention", interactive=False)
+                        multi_cmr_attn = gr.Image(label="CMR Attention", interactive=False)
+
                 # Wiring
                 multi_template.change(on_template_select, multi_template, multi_question)
 
@@ -937,9 +1244,11 @@ def build_demo() -> gr.Blocks:
 
                 multi_submit.click(
                     run_multimodal_analysis,
-                    [multi_ecg, multi_echo, multi_cmr, multi_question, multi_template],
+                    [multi_ecg, multi_echo, multi_cmr, multi_question,
+                     multi_attn_cb, multi_template],
                     [multi_answer, ecg_resp_box, echo_resp_box, cmr_resp_box,
-                     multi_confidence, multi_timing],
+                     multi_confidence, multi_timing,
+                     multi_ecg_attn, multi_echo_attn, multi_cmr_attn],
                 )
 
             # ════════════════════════════════════════════════════════════

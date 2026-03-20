@@ -1,5 +1,6 @@
 """FastAPI app for video chat UI."""
 import asyncio
+import json
 import os
 import shutil
 import uuid
@@ -33,7 +34,25 @@ _preprocess_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="pre
 
 def get_path_for_id(file_id: str) -> Path | None:
     path = Path(config.UPLOAD_DIR) / file_id
-    return path.resolve() if path.is_file() else None
+    return path if path.is_file() else None
+
+
+def _container_safe_video_path(p: Path) -> str:
+    """Return a video path accessible inside the Singularity container.
+
+    The default upload dir may live under a symlink (e.g. ~/.cache ->
+    /projects/…) that is not bind-mounted inside the container.  /tmp/
+    is always mounted, so we hardlink or copy there.
+    """
+    tmp_dir = Path("/tmp/video-chat-ui-media")
+    tmp_dir.mkdir(parents=True, exist_ok=True)
+    dest = tmp_dir / p.name
+    if not dest.exists():
+        try:
+            os.link(str(p.resolve()), str(dest))
+        except OSError:
+            shutil.copy2(str(p), str(dest))
+    return str(dest)
 
 
 @app.get("/health")
@@ -181,10 +200,8 @@ async def chat(req: ChatRequest):
         if not p or not p.is_file():
             raise HTTPException(400, detail="Invalid or expired media id")
         if req.media_kind == "video":
-            # Videos must be local paths (av library needs seekable files)
-            media_ref = str(p)
+            media_ref = _container_safe_video_path(p)
         else:
-            # Images work via HTTP URL
             ui_port = config.PORT
             media_ref = f"http://127.0.0.1:{ui_port}/media/{req.video_id}"
     api_messages = build_api_messages(media_ref, req.messages, req.media_kind)
@@ -196,28 +213,22 @@ async def chat(req: ChatRequest):
     }
     url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/completions"
     try:
-        async with httpx.AsyncClient(timeout=120.0) as client:
-            async with client.stream("POST", url, json=body) as resp:
-                if resp.status_code != 200:
-                    text = await resp.aread()
-                    raise HTTPException(
-                        resp.status_code,
-                        detail=text.decode("utf-8", errors="replace") or "API error",
-                    )
-                chunks = []
-                try:
-                    async for chunk in resp.aiter_text():
-                        if chunk.strip():
-                            chunks.append(chunk)
-                except (httpx.RemoteProtocolError, httpx.ReadError):
-                    pass
-
-        def stream():
-            for c in chunks:
-                yield c
+        async def _stream_from_api():
+            async with httpx.AsyncClient(timeout=120.0) as client:
+                async with client.stream("POST", url, json=body) as resp:
+                    if resp.status_code != 200:
+                        text = await resp.aread()
+                        yield f"data: {json.dumps({'error': text.decode('utf-8', errors='replace')})}\n\n"
+                        return
+                    try:
+                        async for chunk in resp.aiter_text():
+                            if chunk.strip():
+                                yield chunk
+                    except (httpx.RemoteProtocolError, httpx.ReadError):
+                        pass
 
         return StreamingResponse(
-            stream(),
+            _stream_from_api(),
             media_type="text/event-stream",
             headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
         )
@@ -228,6 +239,45 @@ async def chat(req: ChatRequest):
         )
     except httpx.TimeoutException:
         raise HTTPException(504, detail="API request timed out.")
+
+
+@app.post("/chat_attention")
+async def chat_attention(req: ChatRequest):
+    """Forward attention extraction request to the LLaMA-Factory API."""
+    if not req.messages:
+        raise HTTPException(400, detail="messages required")
+    media_ref = None
+    if req.video_id:
+        p = get_path_for_id(req.video_id)
+        if not p or not p.is_file():
+            raise HTTPException(400, detail="Invalid or expired media id")
+        if req.media_kind == "video":
+            media_ref = _container_safe_video_path(p)
+        else:
+            ui_port = config.PORT
+            media_ref = f"http://127.0.0.1:{ui_port}/media/{req.video_id}"
+    api_messages = build_api_messages(media_ref, req.messages, req.media_kind)
+    body = {
+        "model": "gpt-3.5-turbo",
+        "messages": api_messages,
+        "stream": False,
+        "max_tokens": 1024,
+    }
+    url = f"{config.API_BASE_URL.rstrip('/')}/v1/chat/attention"
+    try:
+        async with httpx.AsyncClient(timeout=300.0) as client:
+            resp = await client.post(url, json=body)
+            if resp.status_code != 200:
+                raise HTTPException(resp.status_code, detail=resp.text)
+            return resp.json()
+    except httpx.ConnectError:
+        raise HTTPException(503, detail="Cannot connect to model API.")
+    except httpx.TimeoutException:
+        raise HTTPException(504, detail="API request timed out (attention extraction is slower).")
+    except Exception as e:
+        import traceback, sys
+        traceback.print_exc(file=sys.stderr)
+        raise HTTPException(500, detail=str(e))
 
 
 static_dir = Path(__file__).resolve().parent / "static"
