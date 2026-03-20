@@ -83,97 +83,152 @@ FIGURES_DIR = Path(__file__).resolve().parent.parent.parent / "docs" / "figures"
 # ---------------------------------------------------------------------------
 
 CUSTOM_CSS = """
-/* ── Force light mode (override system dark preference) ──────────────── */
+/* ══════════════════════════════════════════════════════════════════════
+   MARCUS — Professional UI Stylesheet
+   Design: Clean academic aesthetic, Nature-journal inspired
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* ── Force light mode ────────────────────────────────────────────────── */
 :root { color-scheme: light !important; }
-body.dark { background: var(--background-fill-primary) !important; }
+body.dark { background: #ffffff !important; }
+
+/* ── Google Fonts import ────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 /* ── Global ──────────────────────────────────────────────────────────── */
 .gradio-container {
-    max-width: 1200px !important;
+    max-width: 1100px !important;
     margin: auto;
     font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+    background: #ffffff !important;
 }
+.gradio-container .prose { font-size: 0.9rem; }
+.gradio-container .prose p { color: #3b4252; line-height: 1.7; }
 
 /* ── Header ──────────────────────────────────────────────────────────── */
 .marcus-header {
     text-align: center;
-    padding: 32px 20px 20px;
-    border-bottom: 2px solid #e2e8f0;
-    margin-bottom: 8px;
+    padding: 48px 24px 32px;
+    margin-bottom: 4px;
+    position: relative;
+}
+.marcus-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, #1e3a5f, #2563eb);
+    border-radius: 2px;
 }
 .marcus-header h1 {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 2.2rem;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: 0.12em;
-    margin: 0 0 4px;
+    font-size: 2.6rem;
+    font-weight: 700;
+    color: #0f172a;
+    letter-spacing: 0.18em;
+    margin: 0 0 8px;
 }
 .marcus-header .subtitle {
-    font-size: 0.95rem;
-    color: #64748b;
+    font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
+    font-size: 1.05rem;
+    color: #475569;
     font-weight: 400;
-    margin: 0 0 10px;
-    letter-spacing: 0.01em;
+    margin: 0 0 14px;
+    letter-spacing: 0.005em;
+    font-style: italic;
 }
 .marcus-header .authors {
-    font-size: 0.82rem;
-    color: #94a3b8;
+    font-size: 0.8rem;
+    color: #64748b;
     margin: 0;
-    line-height: 1.6;
+    line-height: 1.7;
+    letter-spacing: 0.01em;
 }
-.marcus-header .authors a {
-    color: #3b82f6;
-    text-decoration: none;
+.marcus-header .authors strong {
+    color: #334155;
+    font-weight: 600;
+}
+.marcus-header .affiliation {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    margin-top: 4px;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
 }
 
-/* ── Tab styling ─────────────────────────────────────────────────── */
+/* ── Tab styling ─────────────────────────────────────────────────────── */
+.tab-nav {
+    border-bottom: 2px solid #e5e7eb !important;
+    margin-top: 8px !important;
+}
 .tab-nav button {
     font-family: 'Inter', system-ui, sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 0.82rem !important;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: #64748b !important;
+    padding: 10px 20px !important;
+    border: none !important;
+    background: transparent !important;
+    transition: color 0.2s, border-color 0.2s;
+}
+.tab-nav button.selected {
+    color: #0f172a !important;
     font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    letter-spacing: 0.02em;
+    border-bottom: 2px solid #1e3a5f !important;
+}
+.tab-nav button:hover {
+    color: #1e293b !important;
 }
 
-/* ── Section headings ────────────────────────────────────────────── */
+/* ── Section headings ────────────────────────────────────────────────── */
 h2 {
-    font-family: 'Inter', system-ui, sans-serif;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-top: 1.0em;
-    padding-bottom: 6px;
-    border-bottom: 1px solid #e2e8f0;
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-top: 1.2em;
+    margin-bottom: 0.4em;
+    padding-bottom: 0;
+    border-bottom: none;
 }
 h3 {
     font-family: 'Inter', system-ui, sans-serif;
-    font-size: 1.0rem;
+    font-size: 0.9rem;
     font-weight: 600;
-    color: #334155;
+    color: #1e293b;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-top: 1.2em;
 }
 
-/* ── Status badges ───────────────────────────────────────────────── */
+/* ── Status badges ───────────────────────────────────────────────────── */
 .status-row {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     justify-content: center;
     flex-wrap: wrap;
-    margin: 12px 0 8px;
+    margin: 16px 0 8px;
 }
 .status-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 14px;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    font-family: 'Inter', system-ui, sans-serif;
+    padding: 4px 14px;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.02em;
 }
 .status-online {
-    background: #ecfdf5;
-    color: #065f46;
-    border: 1px solid #a7f3d0;
+    background: #f0fdf4;
+    color: #166534;
+    border: 1px solid #bbf7d0;
 }
 .status-offline {
     background: #fef2f2;
@@ -181,112 +236,179 @@ h3 {
     border: 1px solid #fecaca;
 }
 .status-dot {
-    width: 7px;
-    height: 7px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     display: inline-block;
 }
-.status-online .status-dot { background: #059669; }
-.status-offline .status-dot { background: #dc2626; }
+.status-online .status-dot {
+    background: #22c55e;
+    box-shadow: 0 0 4px rgba(34, 197, 94, 0.4);
+}
+.status-offline .status-dot { background: #ef4444; }
 
-/* ── Result boxes ────────────────────────────────────────────────── */
-.result-box textarea {
+/* ── Inputs & controls ───────────────────────────────────────────────── */
+.gradio-container input[type="text"],
+.gradio-container textarea {
     font-family: 'Inter', system-ui, sans-serif !important;
     font-size: 0.88rem !important;
-    line-height: 1.65 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    transition: border-color 0.2s !important;
+}
+.gradio-container input[type="text"]:focus,
+.gradio-container textarea:focus {
+    border-color: #2563eb !important;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08) !important;
+}
+.gradio-container button.primary {
+    background: #1e3a5f !important;
+    border: none !important;
+    border-radius: 6px !important;
+    font-weight: 600 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 10px 28px !important;
+    transition: background 0.2s, box-shadow 0.2s !important;
+}
+.gradio-container button.primary:hover {
+    background: #15304f !important;
+    box-shadow: 0 2px 8px rgba(30, 58, 95, 0.25) !important;
+}
+.gradio-container button.secondary {
+    border: 1px solid #d1d5db !important;
+    border-radius: 6px !important;
+    font-weight: 500 !important;
+    font-size: 0.82rem !important;
+    color: #374151 !important;
+    background: #ffffff !important;
+}
+.gradio-container button.secondary:hover {
+    background: #f9fafb !important;
+    border-color: #9ca3af !important;
 }
 
-/* ── Score cards ──────────────────────────────────────────────────── */
+/* ── Result boxes ────────────────────────────────────────────────────── */
+.result-box textarea {
+    font-family: 'Inter', system-ui, sans-serif !important;
+    font-size: 0.87rem !important;
+    line-height: 1.72 !important;
+    color: #1e293b !important;
+    background: #fafbfc !important;
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+}
+
+/* ── Score cards ──────────────────────────────────────────────────────── */
 .score-card {
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    background: #fafbfc;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 14px 16px;
+    padding: 16px;
     text-align: center;
 }
 .score-value {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.6rem;
+    font-weight: 600;
     color: #0f172a;
-    font-family: 'JetBrains Mono', 'SF Mono', monospace;
+    font-family: 'JetBrains Mono', monospace;
 }
 .score-label {
-    font-size: 0.72rem;
+    font-size: 0.68rem;
     color: #64748b;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-top: 2px;
+    letter-spacing: 0.08em;
+    margin-top: 4px;
+    font-weight: 500;
 }
 
-/* ── Verdict banners ─────────────────────────────────────────────── */
+/* ── Verdict banners ─────────────────────────────────────────────────── */
 .verdict-pass {
-    background: #ecfdf5;
-    border: 1px solid #a7f3d0;
-    border-radius: 8px;
-    padding: 12px 18px;
-    color: #065f46;
-    font-weight: 600;
-    font-size: 0.92rem;
-    text-align: center;
+    background: #f0fdf4;
+    border-left: 4px solid #22c55e;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 20px;
+    color: #166534;
+    font-weight: 500;
+    font-size: 0.88rem;
+    text-align: left;
 }
 .verdict-fail {
     background: #fffbeb;
-    border: 1px solid #fde68a;
-    border-radius: 8px;
-    padding: 12px 18px;
-    color: #92400e;
-    font-weight: 600;
-    font-size: 0.92rem;
-    text-align: center;
+    border-left: 4px solid #f59e0b;
+    border-radius: 0 8px 8px 0;
+    padding: 14px 20px;
+    color: #78350f;
+    font-weight: 500;
+    font-size: 0.88rem;
+    text-align: left;
 }
 
-/* ── Timing pill ─────────────────────────────────────────────────── */
+/* ── Timing pill ─────────────────────────────────────────────────────── */
 .timing-pill {
     display: inline-block;
     background: #f1f5f9;
     color: #475569;
-    font-size: 0.78rem;
+    font-size: 0.73rem;
     font-weight: 500;
+    font-family: 'JetBrains Mono', monospace;
     padding: 3px 12px;
-    border-radius: 12px;
-    margin-top: 6px;
+    border-radius: 4px;
+    margin-top: 8px;
+    letter-spacing: 0.01em;
 }
 
-/* ── Figure captions ─────────────────────────────────────────────── */
+/* ── Figure captions ─────────────────────────────────────────────────── */
 .figure-caption {
+    font-family: 'Source Serif 4', Georgia, serif;
     font-size: 0.78rem;
-    color: #94a3b8;
+    color: #64748b;
     text-align: center;
-    margin-top: 4px;
+    margin-top: 6px;
     font-style: italic;
 }
 
-/* ── Table refinements ───────────────────────────────────────────── */
+/* ── Table refinements ───────────────────────────────────────────────── */
 table {
-    font-size: 0.85rem !important;
+    font-size: 0.84rem !important;
+    border-collapse: collapse !important;
 }
 table th {
     font-weight: 600 !important;
-    font-size: 0.82rem !important;
+    font-size: 0.78rem !important;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #475569 !important;
+    border-bottom: 2px solid #1e3a5f !important;
+}
+table td {
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding: 8px 12px !important;
 }
 
-/* ── Hide Gradio footer ──────────────────────────────────────────── */
+/* ── Hide Gradio footer ──────────────────────────────────────────────── */
 footer { display: none !important; }
 
-/* ── Card-style group containers ─────────────────────────────────── */
-.card-group {
-    border-radius: 8px;
-    padding: 16px;
-    margin: 8px 0;
+/* ── Accordion styling ───────────────────────────────────────────────── */
+.gradio-container .accordion {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    overflow: hidden;
+}
+.gradio-container .label-wrap {
+    font-family: 'Inter', system-ui, sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 0.85rem !important;
 }
 
-/* ── Pipeline step indicator ─────────────────────────────────────── */
+/* ── Pipeline step indicator ─────────────────────────────────────────── */
 .pipeline-steps {
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 6px;
-    margin: 14px 0 6px;
+    gap: 0;
+    margin: 20px 0 12px;
     flex-wrap: wrap;
 }
 .pipeline-step {
@@ -295,40 +417,102 @@ footer { display: none !important; }
     gap: 0;
 }
 .step-box {
-    background: #f1f5f9;
-    border: 1px solid #cbd5e1;
+    background: #ffffff;
+    border: 1.5px solid #cbd5e1;
     border-radius: 6px;
-    padding: 6px 14px;
-    font-size: 0.78rem;
+    padding: 8px 18px;
+    font-size: 0.76rem;
     font-weight: 600;
-    color: #475569;
+    color: #334155;
     white-space: nowrap;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+}
+.step-box:hover {
+    border-color: #1e3a5f;
+    color: #1e3a5f;
 }
 .step-arrow {
     color: #94a3b8;
-    font-size: 0.9rem;
-    padding: 0 6px;
+    font-size: 1.1rem;
+    padding: 0 8px;
+    font-weight: 300;
 }
 
-/* ── Disclaimer ──────────────────────────────────────────────────── */
+/* ── Disclaimer ──────────────────────────────────────────────────────── */
 .disclaimer {
     text-align: center;
-    font-size: 0.76rem;
+    font-size: 0.72rem;
     color: #94a3b8;
-    padding: 12px 20px;
-    border-top: 1px solid #e2e8f0;
-    margin-top: 16px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    margin-top: 32px;
+    letter-spacing: 0.01em;
+    line-height: 1.6;
 }
 
-/* ── Mirage example cards ────────────────────────────────────────── */
+/* ── Mirage example cards ────────────────────────────────────────────── */
 .mirage-example {
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e7eb;
     border-radius: 8px;
-    padding: 12px 16px;
-    margin: 6px 0;
+    padding: 14px 18px;
+    margin: 8px 0;
+    background: #fafbfc;
 }
-.mirage-example-pass { border-left: 4px solid #059669; }
-.mirage-example-fail { border-left: 4px solid #d97706; }
+.mirage-example-pass { border-left: 3px solid #22c55e; }
+.mirage-example-fail { border-left: 3px solid #f59e0b; }
+
+/* ── Image/media containers ──────────────────────────────────────────── */
+.gradio-container .image-container {
+    border-radius: 8px !important;
+    overflow: hidden;
+    border: 1px solid #e5e7eb !important;
+}
+
+/* ── File upload styling ─────────────────────────────────────────────── */
+.gradio-container .upload-button {
+    border: 2px dashed #d1d5db !important;
+    border-radius: 8px !important;
+    background: #fafbfc !important;
+    transition: border-color 0.2s !important;
+}
+.gradio-container .upload-button:hover {
+    border-color: #2563eb !important;
+}
+
+/* ── Checkbox styling ────────────────────────────────────────────────── */
+.gradio-container input[type="checkbox"] {
+    accent-color: #1e3a5f !important;
+}
+
+/* ── Radio button styling ────────────────────────────────────────────── */
+.gradio-container .radio-group label {
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+}
+
+/* ── Dropdown styling ────────────────────────────────────────────────── */
+.gradio-container .dropdown-container {
+    border-radius: 6px !important;
+}
+
+/* ── Citation code block ─────────────────────────────────────────────── */
+.gradio-container .code-block {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 6px !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.78rem !important;
+}
+
+/* ── Smooth scrolling ────────────────────────────────────────────────── */
+html { scroll-behavior: smooth; }
+
+/* ── Selection color ─────────────────────────────────────────────────── */
+::selection {
+    background: rgba(37, 99, 235, 0.15);
+    color: #0f172a;
+}
 """
 
 # ---------------------------------------------------------------------------
@@ -479,25 +663,62 @@ def _load_base_image(path: str):
     return Image.open(path).convert("RGB")
 
 
+_HEATMAP_PROFILES = {
+    "ecg": {
+        "power_exponent": 0.5,       # broadens attention (sqrt) → smooth blobs
+        "upsample_method": "bilinear",
+        "sharpen_passes": 0,          # no sharpening
+        "final_upsample": "bilinear",
+        "alpha_floor": 0.15,
+        "alpha_ceil": 0.60,
+        "alpha_threshold": 0.0,       # overlay everywhere
+    },
+    "echo": {
+        "power_exponent": 1.0,       # linear (between blobby 0.5 and sharp 1.5)
+        "upsample_method": "bicubic",
+        "sharpen_passes": 1,          # one pass (softer than two)
+        "final_upsample": "bicubic",  # softer than Lanczos
+        "alpha_floor": 0.10,
+        "alpha_ceil": 0.60,
+        "alpha_threshold": 0.10,
+    },
+    "cmr": {
+        "power_exponent": 1.0,
+        "upsample_method": "bicubic",
+        "sharpen_passes": 1,
+        "final_upsample": "bicubic",
+        "alpha_floor": 0.10,
+        "alpha_ceil": 0.60,
+        "alpha_threshold": 0.10,
+    },
+}
+_HEATMAP_DEFAULT = _HEATMAP_PROFILES["echo"]
+
+
 def _create_attention_heatmap(
     attention_weights: list[float],
     grid_h: int,
     grid_w: int,
     base_image,
     grid_t: int = 1,
+    modality: str = "",
 ) -> "np.ndarray | None":
     """Create a heatmap overlay on the base image from attention weights.
 
     For videos (grid_t > 1), averages attention over the temporal dimension.
     ``base_image`` should be a pre-loaded PIL Image (use ``_load_base_image``).
+    ``modality`` selects rendering profile (ecg/echo/cmr).
     Returns numpy array (H, W, 3) or None on failure.
     """
     try:
         import numpy as np
         from PIL import Image as PILImage
+        from PIL import ImageFilter
 
         if base_image is None:
             return None
+
+        prof = _HEATMAP_PROFILES.get(modality.lower(), _HEATMAP_DEFAULT)
 
         # Reshape attention to spatial grid (averaging over temporal dim for video)
         n_spatial = grid_h * grid_w
@@ -512,43 +733,66 @@ def _create_attention_heatmap(
         else:
             attn_map = w_arr[:n_spatial].reshape(grid_h, grid_w)
 
-        # Normalize to [0, 1] with contrast enhancement
+        # Normalize to [0, 1]
         vmin, vmax = attn_map.min(), attn_map.max()
         if vmax > vmin:
             attn_map = (attn_map - vmin) / (vmax - vmin)
-            # Power-law contrast: boost high-attention regions
-            attn_map = np.power(attn_map, 0.5)
         else:
             attn_map = np.zeros_like(attn_map)
 
         w, h = base_image.size
 
-        # Upscale attention map to image size using bilinear interpolation
+        # --- Upscale with modality-specific pipeline ---
+        _resample = {
+            "bilinear": PILImage.BILINEAR,
+            "bicubic": PILImage.BICUBIC,
+            "lanczos": PILImage.LANCZOS,
+        }
+        mid_w, mid_h = grid_w * 4, grid_h * 4
         attn_uint8 = (attn_map * 255).astype(np.uint8)
         attn_pil = PILImage.fromarray(attn_uint8, mode="L")
-        attn_resized = attn_pil.resize((w, h), PILImage.BILINEAR)
-        attn_np = np.array(attn_resized, dtype=np.float32) / 255.0
+        attn_mid = attn_pil.resize(
+            (mid_w, mid_h),
+            _resample.get(prof["upsample_method"], PILImage.BICUBIC),
+        )
 
-        # Jet-like colormap: blue → cyan → green → yellow → red
+        for _ in range(prof["sharpen_passes"]):
+            attn_mid = attn_mid.filter(ImageFilter.SHARPEN)
+
+        attn_resized = attn_mid.resize(
+            (w, h),
+            _resample.get(prof["final_upsample"], PILImage.LANCZOS),
+        )
+        attn_np = np.array(attn_resized, dtype=np.float32) / 255.0
+        attn_np = np.clip(attn_np, 0, 1)
+
+        # Power-law contrast (modality-specific)
+        attn_np = np.power(attn_np, prof["power_exponent"])
+        a_max = attn_np.max()
+        if a_max > 0:
+            attn_np = attn_np / a_max
+
+        # Jet-like colormap: blue -> cyan -> green -> yellow -> red
         heatmap_rgb = np.zeros((h, w, 3), dtype=np.float32)
-        # Red: ramp up from 0.5 to 1.0
         heatmap_rgb[:, :, 0] = np.clip(1.5 * attn_np - 0.25, 0, 1)
-        # Green: peak at 0.5, taper at extremes
         heatmap_rgb[:, :, 1] = np.clip(1.0 - 2.0 * np.abs(attn_np - 0.5), 0, 1)
-        # Blue: ramp down from 0.0 to 0.5
         heatmap_rgb[:, :, 2] = np.clip(1.25 - 1.5 * attn_np, 0, 1)
 
         heatmap_rgb = (heatmap_rgb * 255).astype(np.uint8)
         heatmap_img = PILImage.fromarray(heatmap_rgb, mode="RGB")
 
-        # Blend: variable alpha — stronger where attention is high
+        # Blend with modality-specific alpha
         base_np = np.array(base_image, dtype=np.float32)
         heat_np = np.array(heatmap_img, dtype=np.float32)
-        # Alpha ranges from 0.15 (low attn) to 0.6 (high attn)
-        alpha_map = 0.15 + 0.45 * attn_np
+        threshold = prof["alpha_threshold"]
+        floor = prof["alpha_floor"]
+        ceil = prof["alpha_ceil"]
+        alpha_map = np.where(
+            attn_np < threshold, 0.0, floor + (ceil - floor) * attn_np,
+        )
+        alpha_map = np.clip(alpha_map, 0.0, ceil)
         alpha_3ch = np.stack([alpha_map] * 3, axis=-1)
         blended_np = (1 - alpha_3ch) * base_np + alpha_3ch * heat_np
-        # Return as numpy array — Gradio gr.Image handles this directly
         return blended_np.astype(np.uint8)
 
     except Exception as exc:
@@ -675,6 +919,7 @@ async def run_single_analysis(
                 if i < len(attn_maps) and base_img is not None:
                     heatmap = _create_attention_heatmap(
                         attn_maps[i], grid_h, grid_w, base_img, grid_t,
+                        modality=modality,
                     )
                     if heatmap is not None:
                         last_heatmap = heatmap
@@ -852,7 +1097,7 @@ async def run_multimodal_analysis(
                 base_img = _load_base_image(file_paths[mod])
                 # Use last token's attention (final answer token)
                 last_attn = attn_maps[-1] if attn_maps else []
-                hm = _create_attention_heatmap(last_attn, grid_h, grid_w, base_img, grid_t)
+                hm = _create_attention_heatmap(last_attn, grid_h, grid_w, base_img, grid_t, modality=mod)
                 if hm is not None:
                     heatmaps[mod] = hm
 
@@ -912,9 +1157,9 @@ async def run_mirage_probe(
         r3 = _strip_think_tags(result.image_present_responses[2]) if len(result.image_present_responses) > 2 else ""
 
         if result.mirage_flag:
-            verdict = '<div class="verdict-fail">⚠ MIRAGE DETECTED — Responses are similar with and without visual input, suggesting the model may not be genuinely referencing the provided data.</div>'
+            verdict = '<div class="verdict-fail">MIRAGE DETECTED &mdash; Responses are similar with and without visual input, suggesting the model may not be genuinely referencing the provided data.</div>'
         else:
-            verdict = '<div class="verdict-pass">✓ NO MIRAGE — Responses are grounded in the provided visual data. The model\'s analysis changes substantively when the image is removed.</div>'
+            verdict = '<div class="verdict-pass">NO MIRAGE &mdash; Responses are grounded in the provided visual data. The model\'s analysis changes substantively when the image is removed.</div>'
 
         return (
             rephrase_display,
@@ -1001,10 +1246,11 @@ def build_demo() -> gr.Blocks:
                 Multimodal Autonomous Reasoning and Chat for Ultrasound and Signals
             </p>
             <p class="authors">
-                O'Sullivan JW*, Asadi M*, Elbe L, Chaudhari A, Nedaee T,
-                Haddad F, Salerno M, Fei-Fei L, Adeli E, Arnaout R, Ashley EA<br>
-                Stanford University · UCSF
+                <strong>O'Sullivan JW*</strong>, <strong>Asadi M*</strong>,
+                Elbe L, Chaudhari A, Nedaee T,
+                Haddad F, Salerno M, Fei-Fei L, Adeli E, Arnaout R, Ashley EA
             </p>
+            <p class="affiliation">Stanford University &middot; UCSF</p>
         </div>
         """)
 
@@ -1025,9 +1271,10 @@ def build_demo() -> gr.Blocks:
                 gr.Markdown(
                     "MARCUS is an agentic vision-language system for end-to-end "
                     "interpretation of **electrocardiograms**, **echocardiograms**, "
-                    "and **cardiac MRI** — both independently and as multimodal input. "
-                    "Trained on **13.5 million images** from **270,000 clinical studies** "
-                    "with physician-verified ground truth."
+                    "and **cardiac MRI**. It reasons across modalities independently "
+                    "and jointly, with built-in counterfactual safeguards against "
+                    "hallucinated reasoning. Trained on 13.5 million images from "
+                    "270,000 clinical studies with physician-verified ground truth."
                 )
 
                 # Pipeline visualisation
@@ -1169,11 +1416,11 @@ def build_demo() -> gr.Blocks:
                     <div class="pipeline-step">
                         <span class="step-box">CMR Expert</span>
                     </div>
-                    <div class="pipeline-step" style="margin-left:6px;">
-                        <span class="step-arrow">→</span>
-                        <span class="step-box" style="background:#dbeafe; border-color:#93c5fd;">Orchestrator</span>
-                        <span class="step-arrow">→</span>
-                        <span class="step-box" style="background:#2563eb; color:#fff; border-color:#1d4ed8;">Report</span>
+                    <div class="pipeline-step">
+                        <span class="step-arrow">&rarr;</span>
+                        <span class="step-box" style="background:#f0f4ff; border-color:#93a8d4;">Orchestrator</span>
+                        <span class="step-arrow">&rarr;</span>
+                        <span class="step-box" style="background:#1e3a5f; color:#fff; border-color:#1e3a5f;">Report</span>
                     </div>
                 </div>
                 """)
@@ -1412,9 +1659,8 @@ generating plausible text from its language prior rather than interpreting the a
         # ── Footer ──────────────────────────────────────────────────────
         gr.HTML(
             '<div class="disclaimer">'
-            "MARCUS is intended for research use and clinical decision support. "
-            "It is not a substitute for professional medical judgment. "
-            "For research purposes only."
+            "MARCUS is a research prototype for investigational use only. "
+            "It is not intended as a substitute for professional medical judgment."
             "</div>"
         )
 
@@ -1433,12 +1679,33 @@ def main():
     os.environ.setdefault("UPLOAD_DIR", "/tmp/marcus_uploads")
 
     demo = build_demo()
-    theme = gr.themes.Soft(
-        primary_hue="blue",
+    theme = gr.themes.Base(
+        primary_hue=gr.themes.Color(
+            c50="#f0f4ff", c100="#dbe4ff", c200="#bac8ff",
+            c300="#91a7ff", c400="#748ffc", c500="#4c6ef5",
+            c600="#3b5bdb", c700="#1e3a5f", c800="#1a3052",
+            c900="#0f1f3a", c950="#0a1628",
+        ),
         secondary_hue="slate",
         neutral_hue="slate",
         font=[gr.themes.GoogleFont("Inter"), "system-ui", "sans-serif"],
         font_mono=[gr.themes.GoogleFont("JetBrains Mono"), "Consolas", "monospace"],
+    ).set(
+        body_background_fill="#ffffff",
+        block_background_fill="#ffffff",
+        block_border_width="1px",
+        block_border_color="#e5e7eb",
+        block_radius="8px",
+        block_shadow="0 1px 3px rgba(0,0,0,0.04)",
+        input_background_fill="#ffffff",
+        input_border_color="#d1d5db",
+        input_radius="6px",
+        button_primary_background_fill="#1e3a5f",
+        button_primary_text_color="#ffffff",
+        button_primary_border_color="#1e3a5f",
+        button_secondary_background_fill="#ffffff",
+        button_secondary_border_color="#d1d5db",
+        button_secondary_text_color="#374151",
     )
     demo.queue(max_size=10)
     # Inject a <script> in <head> that fires early — before Gradio adds body.dark.
@@ -1465,7 +1732,7 @@ def main():
     demo.launch(
         server_name="0.0.0.0",
         server_port=7860,
-        share=False,
+        share=True,
         theme=theme,
         css=CUSTOM_CSS,
         head=_force_light_head,
