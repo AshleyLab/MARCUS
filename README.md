@@ -686,6 +686,15 @@ If you use MARCUS in your research, please cite:
 
 ---
 
+## Contributors
+
+<a href="https://github.com/jackosullivanoxford"><img src="https://github.com/jackosullivanoxford.png" width="60" style="border-radius:50%"></a>
+<a href="https://github.com/masadi-99"><img src="https://github.com/masadi-99.png" width="60" style="border-radius:50%"></a>
+
+**[Jack O'Sullivan](https://github.com/jackosullivanoxford)** · **[Mohammad Asadi](https://github.com/masadi-99)**
+
+---
+
 ## License
 
 This project is released under the [MIT License](LICENSE).
