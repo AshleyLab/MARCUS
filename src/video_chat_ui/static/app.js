@@ -347,4 +347,27 @@
       sendMessage();
     }
   });
+
+  // ---- Model API status pill ----
+  const apiStatusPill = document.getElementById("apiStatusPill");
+
+  function updateApiStatusPill(connected) {
+    if (connected) {
+      apiStatusPill.textContent = "Model: connected";
+      apiStatusPill.className = "api-status-pill connected";
+    } else {
+      apiStatusPill.textContent = "Model not connected \u2014 run marcus-ecg first";
+      apiStatusPill.className = "api-status-pill disconnected";
+    }
+  }
+
+  function checkApiStatus() {
+    fetch("/api-status")
+      .then((r) => r.json())
+      .then((data) => updateApiStatusPill(!!data.connected))
+      .catch(() => updateApiStatusPill(false));
+  }
+
+  checkApiStatus();
+  setInterval(checkApiStatus, 30000);
 })();

@@ -60,6 +60,19 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api-status")
+async def api_status():
+    """Check whether the model API is reachable. Always returns 200."""
+    url = f"{config.API_BASE_URL.rstrip('/')}/v1/models"
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            resp = await client.get(url)
+            connected = resp.status_code == 200
+    except Exception:
+        connected = False
+    return {"connected": connected}
+
+
 class ChatMessage(BaseModel):
     role: str
     content: str
