@@ -93,6 +93,10 @@ Repository = "https://github.com/stanford-cardiac-ai/MARCUS"
 "HuggingFace" = "https://huggingface.co/stanford-cardiac-ai"
 "Paper" = "https://arxiv.org/abs/marcus-cardiac-ai"
 
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
+pythonpath = ["src"]
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
