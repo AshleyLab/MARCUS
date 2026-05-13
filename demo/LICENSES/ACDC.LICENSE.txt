@@ -1,0 +1,19 @@
+ACDC dataset (Automated Cardiac Diagnosis Challenge)
+====================================================
+Bernard O, Lalande A, Zotti C, Cervenansky F, Yang X, Heng PA, Cetin I,
+Lekadir K, Camara O, Gonzalez Ballester MA, et al. Deep Learning
+Techniques for Automatic MRI Cardiac Multi-Structures Segmentation and
+Diagnosis: Is the Problem Solved? IEEE Transactions on Medical Imaging
+37(11), 2514–2525 (2018). doi:10.1109/TMI.2018.2837502
+
+Project site: https://www.creatis.insa-lyon.fr/Challenge/acdc/
+
+License: CC-BY 4.0 (training subset, per the challenge release terms).
+Required attribution: cite Bernard et al. 2018 above and link to the
+ACDC challenge site.
+
+The MARCUS demo uses three training-subset cases (patient001,
+patient002, patient003) under CC-BY 4.0. Re-distribution and modification
+are permitted with attribution.
+
+Full license text: https://creativecommons.org/licenses/by/4.0/

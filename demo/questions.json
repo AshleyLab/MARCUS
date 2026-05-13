@@ -1,0 +1,122 @@
+[
+  {
+    "id": "demo_ecg_001",
+    "modality": "ECG",
+    "type": "MCQ",
+    "input": "data/ecg/sample_001.png",
+    "question": "Which of the following best describes the cardiac rhythm shown on this 12-lead ECG?\nA. Normal sinus rhythm\nB. Atrial fibrillation\nC. Atrial flutter\nD. Complete heart block",
+    "category": "rhythm"
+  },
+  {
+    "id": "demo_ecg_002",
+    "modality": "ECG",
+    "type": "MCQ",
+    "input": "data/ecg/sample_002.png",
+    "question": "Are voltage criteria for left ventricular hypertrophy met on this ECG?\nA. Yes — Sokolow–Lyon criterion met (S in V1 + R in V5/V6 > 35 mm)\nB. Yes — Cornell voltage criterion met (R in aVL + S in V3 > 28 mm in men)\nC. No\nD. Indeterminate due to poor R-wave progression",
+    "category": "voltage/hypertrophy"
+  },
+  {
+    "id": "demo_ecg_003",
+    "modality": "ECG",
+    "type": "MCQ",
+    "input": "data/ecg/sample_003.png",
+    "question": "What is the most likely intraventricular conduction pattern visible on this ECG?\nA. Normal QRS morphology\nB. Left bundle branch block\nC. Right bundle branch block\nD. Non-specific intraventricular conduction delay",
+    "category": "conduction"
+  },
+  {
+    "id": "demo_ecg_004",
+    "modality": "ECG",
+    "type": "VQA",
+    "input": "data/ecg/sample_001.png",
+    "question": "Describe the rhythm, rate, and any conduction abnormalities visible on this 12-lead ECG.",
+    "category": "rhythm"
+  },
+  {
+    "id": "demo_ecg_005",
+    "modality": "ECG",
+    "type": "VQA",
+    "input": "data/ecg/sample_002.png",
+    "question": "Is there any evidence of left ventricular hypertrophy on this ECG? Explain your reasoning.",
+    "category": "voltage/hypertrophy"
+  },
+  {
+    "id": "demo_echo_001",
+    "modality": "Echo",
+    "type": "MCQ",
+    "input": "data/echo/sample_001.mp4",
+    "question": "Based on this apical four-chamber echocardiographic cine, the left ventricular ejection fraction is best described as:\nA. Normal (≥ 55%)\nB. Mildly reduced (45–54%)\nC. Moderately reduced (30–44%)\nD. Severely reduced (< 30%)",
+    "category": "LV systolic function"
+  },
+  {
+    "id": "demo_echo_002",
+    "modality": "Echo",
+    "type": "MCQ",
+    "input": "data/echo/sample_002.mp4",
+    "question": "Which of the following best describes the left ventricular cavity size on this echocardiogram?\nA. Normal\nB. Mildly dilated\nC. Moderately dilated\nD. Severely dilated",
+    "category": "LV size"
+  },
+  {
+    "id": "demo_echo_003",
+    "modality": "Echo",
+    "type": "VQA",
+    "input": "data/echo/sample_003.mp4",
+    "question": "Describe the left ventricular systolic function and any wall-motion abnormalities visible on this echocardiogram.",
+    "category": "LV systolic function"
+  },
+  {
+    "id": "demo_echo_004",
+    "modality": "Echo",
+    "type": "VQA",
+    "input": "data/echo/sample_001.mp4",
+    "question": "Is there any evidence of regional wall-motion abnormality on this study?",
+    "category": "wall motion"
+  },
+  {
+    "id": "demo_cmr_001",
+    "modality": "CMR",
+    "type": "MCQ",
+    "input": "data/cmr/sample_001.mp4",
+    "question": "Based on the short-axis cine images, the left ventricular ejection fraction is best described as:\nA. Normal\nB. Mildly reduced\nC. Moderately reduced\nD. Severely reduced",
+    "category": "LV systolic function"
+  },
+  {
+    "id": "demo_cmr_002",
+    "modality": "CMR",
+    "type": "MCQ",
+    "input": "data/cmr/sample_002.mp4",
+    "question": "Which of the following best describes the left ventricular wall-thickness pattern on this study?\nA. Normal LV wall thickness\nB. Concentric LV hypertrophy\nC. Asymmetric septal hypertrophy\nD. Eccentric LV remodeling",
+    "category": "LV wall thickness"
+  },
+  {
+    "id": "demo_cmr_003",
+    "modality": "CMR",
+    "type": "VQA",
+    "input": "data/cmr/sample_003.mp4",
+    "question": "Describe the left ventricular size, wall thickness, and global systolic function on this cardiac MRI.",
+    "category": "LV global assessment"
+  },
+  {
+    "id": "demo_multimodal_001",
+    "modality": "ECG+echo",
+    "type": "MCQ",
+    "input": ["data/ecg/sample_002.png", "data/echo/sample_002.mp4"],
+    "question": "Considering both the 12-lead ECG and the echocardiogram, which combined finding is most consistent with the available data?\nA. Normal ECG with normal LV function on echo\nB. Voltage criteria for LV hypertrophy on ECG with concentric LV hypertrophy on echo\nC. Atrial fibrillation on ECG with reduced LV systolic function on echo\nD. Complete heart block on ECG with normal LV function on echo",
+    "category": "ECG–echo concordance"
+  },
+  {
+    "id": "demo_multimodal_002",
+    "modality": "echo+CMR",
+    "type": "MCQ",
+    "input": ["data/echo/sample_003.mp4", "data/cmr/sample_001.mp4"],
+    "question": "Based on the echocardiogram and the cardiac MRI together, what best describes the global LV systolic function?\nA. Normal LV systolic function with preserved stroke volume\nB. Mild global LV systolic dysfunction\nC. Moderate LV systolic dysfunction\nD. Severely reduced LV systolic function",
+    "category": "LV systolic function"
+  },
+  {
+    "id": "demo_multimodal_003",
+    "modality": "ECG+echo+CMR",
+    "type": "VQA",
+    "input": ["data/ecg/sample_001.png", "data/echo/sample_001.mp4", "data/cmr/sample_002.mp4"],
+    "question": "Integrate the findings on the ECG, the echocardiogram, and the cardiac MRI into a single one-paragraph summary of this patient's cardiac status.",
+    "category": "multimodal synthesis"
+  }
+]

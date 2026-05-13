@@ -1,0 +1,15 @@
+PTB-XL dataset
+==============
+Wagner P, Strodthoff N, Bousseljot RD, Kreiseler D, Lunze FI, Samek W,
+Schaeffter T. PTB-XL, a large publicly available electrocardiography
+dataset. Scientific Data 7, 154 (2020). doi:10.1038/s41597-020-0495-6
+
+Hosted by PhysioNet: https://physionet.org/content/ptb-xl/
+
+License: Open Data Commons Attribution License v1.0 (ODC-By 1.0).
+Required attribution: cite Wagner et al. 2020 above.
+
+The MARCUS demo uses three records from the open-access preview at
+records100/00000/ (00001_lr, 00002_lr, 00003_lr). These records are
+provided here under ODC-By 1.0 in compliance with the original license.
+Full license text: https://opendatacommons.org/licenses/by/1-0/

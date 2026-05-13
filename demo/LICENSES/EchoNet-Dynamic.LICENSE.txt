@@ -1,0 +1,20 @@
+EchoNet-Dynamic dataset
+=======================
+Ouyang D, He B, Ghorbani A, Yuan N, Ebinger J, Langlotz CP, Heidenreich PA,
+Harrington RA, Liang DH, Ashley EA, Zou JY. Video-based AI for beat-to-beat
+assessment of cardiac function. Nature 580, 252–256 (2020).
+doi:10.1038/s41586-020-2145-8
+
+Project site: https://echonet.github.io/dynamic/
+
+License: Stanford Academic Software License — Non-Commercial.
+Allows redistribution of the released MP4 sample data for academic research.
+Required attribution: cite Ouyang et al. 2020 above and link to the
+EchoNet-Dynamic project site.
+
+The MARCUS demo uses three sample cines from the publicly-released
+EchoNet-Dynamic subset. These cines are provided here in compliance with
+the Stanford Academic Software License for academic research and
+demonstration purposes.
+
+Full license text: https://stanfordaimi.azurewebsites.net/datasets/echonet-dynamic

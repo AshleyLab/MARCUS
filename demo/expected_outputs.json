@@ -1,0 +1,77 @@
+[
+  {
+    "id": "demo_ecg_001",
+    "reference": "A",
+    "note": "PTB-XL record 00001 — annotated as sinus rhythm in the metadata. MARCUS should pick A."
+  },
+  {
+    "id": "demo_ecg_002",
+    "reference": "C",
+    "note": "PTB-XL record 00002 — voltage criteria for LVH are not met in the canonical PTB-XL labels for this record. MARCUS should pick C."
+  },
+  {
+    "id": "demo_ecg_003",
+    "reference": "A",
+    "note": "PTB-XL record 00003 — normal QRS morphology, no BBB. MARCUS should pick A."
+  },
+  {
+    "id": "demo_ecg_004",
+    "reference": null,
+    "note": "Free-text VQA — manual inspection. Expected MARCUS response: identifies sinus rhythm, normal rate (~70 bpm), no conduction delay."
+  },
+  {
+    "id": "demo_ecg_005",
+    "reference": null,
+    "note": "Free-text VQA — MARCUS should report that voltage criteria for LVH are not met, with brief justification (e.g., S in V1 + R in V5 below threshold)."
+  },
+  {
+    "id": "demo_echo_001",
+    "reference": "A",
+    "note": "EchoNet-Dynamic sample 0X1A0A263B22CCD966 — annotated EF in canonical EchoNet labels is in the normal range. MARCUS should pick A."
+  },
+  {
+    "id": "demo_echo_002",
+    "reference": "A",
+    "note": "EchoNet-Dynamic sample 0X1A05DFFFCAFB253B — canonical LVEDV in normal range; MARCUS should pick A (normal LV cavity size)."
+  },
+  {
+    "id": "demo_echo_003",
+    "reference": null,
+    "note": "Free-text VQA — MARCUS should describe global LV systolic function with reference to EF; no wall-motion abnormality expected on this sample."
+  },
+  {
+    "id": "demo_echo_004",
+    "reference": null,
+    "note": "Free-text VQA — MARCUS should report no convincing regional wall-motion abnormality on this normal sample."
+  },
+  {
+    "id": "demo_cmr_001",
+    "reference": "A",
+    "note": "ACDC patient001 — healthy control. MARCUS should pick A (normal LVEF)."
+  },
+  {
+    "id": "demo_cmr_002",
+    "reference": "C",
+    "note": "ACDC patient002 — hypertrophic cardiomyopathy class. MARCUS should pick C (asymmetric septal hypertrophy)."
+  },
+  {
+    "id": "demo_cmr_003",
+    "reference": null,
+    "note": "Free-text VQA — MARCUS should describe a dilated LV with reduced systolic function (ACDC patient003 is in the dilated-cardiomyopathy class)."
+  },
+  {
+    "id": "demo_multimodal_001",
+    "reference": "A",
+    "note": "ECG and echo are unmatched (different patients); both within normal limits — MARCUS should pick A."
+  },
+  {
+    "id": "demo_multimodal_002",
+    "reference": "A",
+    "note": "Echo + CMR (different patients); both within normal limits — MARCUS should pick A."
+  },
+  {
+    "id": "demo_multimodal_003",
+    "reference": null,
+    "note": "Free-text VQA — MARCUS should produce a one-paragraph integrated summary covering ECG rhythm, echo LV function, and CMR morphology. Note that the three inputs are from different patients (unmatched demo)."
+  }
+]
