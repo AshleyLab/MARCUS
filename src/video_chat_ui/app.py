@@ -60,6 +60,19 @@ def health():
     return {"status": "ok"}
 
 
+@app.get("/api-status")
+async def api_status():
+    """Check whether the model API is reachable. Always returns 200."""
+    url = f"{config.API_BASE_URL.rstrip('/')}/v1/models"
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            resp = await client.get(url)
+            connected = resp.status_code == 200
+    except Exception:
+        connected = False
+    return {"connected": connected}
+
+
 class ChatMessage(BaseModel):
     role: str
     content: str
@@ -235,7 +248,10 @@ async def chat(req: ChatRequest):
     except httpx.ConnectError:
         raise HTTPException(
             503,
-            detail="Cannot connect to model API. Start it first (e.g. llamafactory-cli api ...).",
+            detail=(
+                f"Cannot connect to model API at {config.API_BASE_URL}. "
+                "Start it with: marcus-ecg, marcus-echo, or marcus-cmr"
+            ),
         )
     except httpx.TimeoutException:
         raise HTTPException(504, detail="API request timed out.")
@@ -271,7 +287,13 @@ async def chat_attention(req: ChatRequest):
                 raise HTTPException(resp.status_code, detail=resp.text)
             return resp.json()
     except httpx.ConnectError:
-        raise HTTPException(503, detail="Cannot connect to model API.")
+        raise HTTPException(
+            503,
+            detail=(
+                f"Cannot connect to model API at {config.API_BASE_URL}. "
+                "Start it with: marcus-ecg, marcus-echo, or marcus-cmr"
+            ),
+        )
     except httpx.TimeoutException:
         raise HTTPException(504, detail="API request timed out (attention extraction is slower).")
     except Exception as e:

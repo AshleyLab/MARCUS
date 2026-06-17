@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -10,6 +11,15 @@ from video_chat_ui.eval.run_batch import run_batch
 
 
 def main(argv: list[str] | None = None) -> int:
+    if not os.environ.get("OPENAI_API_KEY"):
+        print(
+            "OPENAI_API_KEY is not set.\n"
+            "The evaluation judge uses OpenAI gpt-4o-mini to score predictions.\n"
+            "Set it with: export OPENAI_API_KEY=sk-...",
+            file=sys.stderr,
+        )
+        return 1
+
     p = argparse.ArgumentParser(
         prog="video-chat-eval",
         description="Batch VQA (Likert) or MCQ judge via OpenAI gpt-4o-mini.",

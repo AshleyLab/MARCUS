@@ -139,3 +139,16 @@ body {
 .error-message { margin: 0; padding: 0.5rem; font-size: 0.875rem; color: #f87171; background: #1c1917; border-radius: 8px; }
 .loading-message { margin: 0; font-size: 0.875rem; color: #a1a1aa; }
 [hidden] { display: none !important; }
+
+.api-status-pill {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+}
+.api-status-pill:empty { display: none; }
+.api-status-pill.connected { background: #14532d; color: #86efac; border: 1px solid #16a34a; }
+.api-status-pill.disconnected { background: #431407; color: #fdba74; border: 1px solid #c2410c; }

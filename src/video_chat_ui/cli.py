@@ -116,6 +116,15 @@ def run_expert(name: str) -> None:
         print(f"LLAMA_FACTORY_DIR not found: {llama_dir}", file=sys.stderr)
         sys.exit(1)
 
+    checkpoint_path = os.path.join(llama_dir, model_relpath)
+    if not os.path.isdir(checkpoint_path):
+        print(
+            f"Checkpoint not found: {checkpoint_path}\n"
+            f"Download it with: python scripts/download_checkpoints.py --model {name}",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     proc = _start_api(llama_dir, sif, api_port, model_relpath)
     print(f"Loading {name.upper()} expert (API :{api_port})...")
     try:
